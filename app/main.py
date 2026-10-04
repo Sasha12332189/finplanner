@@ -32,27 +32,53 @@ telegram_bot: Bot | None = None
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    """Start the HTTP app first; Telegram configuration must never block it."""
     global telegram_bot
+    import asyncio
+    import logging
+
     await init_database()
     settings = get_settings()
-    if settings.bot_token and settings.public_app_url.startswith("https://"):
-        telegram_bot = Bot(settings.bot_token)
-        await configure_commands(telegram_bot)
+
+    async def setup_telegram() -> None:
+        global telegram_bot
+        if not settings.bot_token or not settings.public_app_url.startswith("https://"):
+            logging.warning("Telegram webhook disabled: BOT_TOKEN/PUBLIC_APP_URL is missing or invalid")
+            return
+
+        bot = Bot(settings.bot_token)
+        telegram_bot = bot
         webhook_url = settings.public_app_url.rstrip("/") + "/telegram/webhook"
-        await telegram_bot.set_webhook(webhook_url, drop_pending_updates=False)
-        import logging
-        logging.info("Telegram webhook set: %s", webhook_url)
-    else:
-        import logging
-        logging.warning("Telegram webhook disabled: BOT_TOKEN/PUBLIC_APP_URL is missing or invalid")
+
+        # Webhook is the critical part. Configure it first so a failure in
+        # optional Telegram UI configuration cannot prevent /start from working.
+        try:
+            await bot.set_webhook(webhook_url, drop_pending_updates=False)
+            logging.info("Telegram webhook set: %s", webhook_url)
+        except Exception:
+            logging.exception("Failed to set Telegram webhook")
+            return
+
+        try:
+            await configure_commands(bot)
+            logging.info("Telegram commands/menu configured")
+        except Exception:
+            logging.exception("Telegram commands/menu configuration failed; webhook remains active")
+
+    # Do not await Telegram API setup before serving HTTP.
+    asyncio.create_task(setup_telegram())
+
     try:
         yield
     finally:
         if telegram_bot is not None:
             try:
                 await telegram_bot.delete_webhook(drop_pending_updates=False)
-            finally:
+            except Exception:
+                logging.exception("Failed to delete Telegram webhook during shutdown")
+            try:
                 await telegram_bot.session.close()
+            finally:
                 telegram_bot = None
         await close_database()
 
@@ -96,7 +122,7 @@ async def telegram_webhook(request: Request) -> dict[str, bool]:
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "telegram": "configured" if telegram_bot is not None else "not_configured"}
 
 
 @app.get("/")
