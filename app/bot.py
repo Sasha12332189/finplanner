@@ -214,6 +214,38 @@ async def main() -> None:
     await dispatcher.start_polling(bot)
 
 
+async def run_railway() -> None:
+    """Run both the HTTP app and Telegram polling when Railway invokes bot.py directly."""
+    import os
+    import uvicorn
+
+    port = int(os.getenv("PORT", "8000"))
+
+    async def run_bot_safe() -> None:
+        try:
+            await main()
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logging.exception("Telegram bot stopped with an error; web server will remain running")
+
+    config = uvicorn.Config(
+        "app.main:app",
+        host="0.0.0.0",
+        port=port,
+        log_level="info",
+        access_log=True,
+    )
+    server = uvicorn.Server(config)
+    bot_task = asyncio.create_task(run_bot_safe(), name="telegram-bot")
+    try:
+        logging.info("Starting FinPlan web server on 0.0.0.0:%s", port)
+        await server.serve()
+    finally:
+        bot_task.cancel()
+        await asyncio.gather(bot_task, return_exceptions=True)
+
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    asyncio.run(run_railway())
