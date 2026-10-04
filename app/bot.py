@@ -8,7 +8,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
-from aiogram.types import MenuButtonWebApp, Message, ReplyKeyboardRemove, WebAppInfo
+from aiogram.types import Message, ReplyKeyboardRemove
 from sqlalchemy import select
 
 from .config import get_settings
@@ -51,19 +51,6 @@ async def configure_commands(bot: Bot) -> None:
         BotCommand(command="portfolio", description="View portfolio"),
     ])
 
-
-async def configure_mini_app_button(bot: Bot) -> None:
-    url = app_url()
-    if not url.startswith("https://"):
-        logging.warning("PUBLIC_APP_URL is not a public HTTPS URL; Mini App button was not configured.")
-        return
-    await bot.set_chat_menu_button(
-        menu_button=MenuButtonWebApp(
-            text="finplan",
-            web_app=WebAppInfo(url=url),
-        )
-    )
-    logging.info("Telegram Mini App menu button configured: %s", url)
 
 
 @router.message(CommandStart())
@@ -219,7 +206,6 @@ async def main() -> None:
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     await configure_commands(bot)
-    await configure_mini_app_button(bot)
 
     dispatcher = Dispatcher()
     dispatcher.include_router(router)
