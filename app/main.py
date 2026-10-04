@@ -5,13 +5,17 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import get_current_user
+from .bot import bot_user, configure_commands, dispatcher
+from aiogram import Bot
+from aiogram.types import Update
+from .config import get_settings
 from .database import SessionLocal, close_database, init_database
 from .market_data import FinnhubClient, MarketDataUnavailable
 from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction, User, WatchlistItem
@@ -23,11 +27,34 @@ ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
 
 
+telegram_bot: Bot | None = None
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    global telegram_bot
     await init_database()
-    yield
-    await close_database()
+    settings = get_settings()
+    if settings.bot_token and settings.public_app_url.startswith("https://"):
+        telegram_bot = Bot(settings.bot_token)
+        await configure_commands(telegram_bot)
+        webhook_url = settings.public_app_url.rstrip("/") + "/telegram/webhook"
+        await telegram_bot.set_webhook(webhook_url, drop_pending_updates=False)
+        import logging
+        logging.info("Telegram webhook set: %s", webhook_url)
+    else:
+        import logging
+        logging.warning("Telegram webhook disabled: BOT_TOKEN/PUBLIC_APP_URL is missing or invalid")
+    try:
+        yield
+    finally:
+        if telegram_bot is not None:
+            try:
+                await telegram_bot.delete_webhook(drop_pending_updates=False)
+            finally:
+                await telegram_bot.session.close()
+                telegram_bot = None
+        await close_database()
 
 
 app = FastAPI(title="finplan", version="2.0.0", lifespan=lifespan)
@@ -55,6 +82,16 @@ async def owned_user(
     session: AsyncSession = Depends(db_session),
 ) -> User:
     return await session.merge(user)
+
+
+@app.post("/telegram/webhook")
+async def telegram_webhook(request: Request) -> dict[str, bool]:
+    if telegram_bot is None:
+        raise HTTPException(status_code=503, detail="Telegram bot is not configured")
+    payload = await request.json()
+    update = Update.model_validate(payload, context={"bot": telegram_bot})
+    await dispatcher.feed_update(telegram_bot, update)
+    return {"ok": True}
 
 
 @app.get("/health")
