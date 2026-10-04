@@ -8,7 +8,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import MenuButtonWebApp, Message, ReplyKeyboardRemove, WebAppInfo
 from sqlalchemy import select
 
 from .config import get_settings
@@ -43,6 +43,7 @@ async def bot_user(message: Message):
 
 async def configure_commands(bot: Bot) -> None:
     from aiogram.types import BotCommand
+    settings = get_settings()
     await bot.set_my_commands([
         BotCommand(command="start", description="Start finplan"),
         BotCommand(command="app", description="Open Mini App"),
@@ -50,6 +51,18 @@ async def configure_commands(bot: Bot) -> None:
         BotCommand(command="goal", description="Create a savings goal"),
         BotCommand(command="portfolio", description="View portfolio"),
     ])
+
+    # Keep Telegram's blue Menu button synchronized with the current Railway URL.
+    # This must use the exact public HTTPS URL from PUBLIC_APP_URL.
+    url = settings.public_app_url.rstrip("/")
+    if not url.startswith("https://"):
+        raise RuntimeError("PUBLIC_APP_URL must be a valid HTTPS URL on Railway")
+    await bot.set_chat_menu_button(
+        menu_button=MenuButtonWebApp(
+            text="finplan",
+            web_app=WebAppInfo(url=url),
+        )
+    )
 
 
 
