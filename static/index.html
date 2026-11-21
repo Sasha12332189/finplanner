@@ -1459,6 +1459,107 @@ body.keyboard-open .bottom-nav{transition:none!important}
 .transfer-bg{background:rgba(107,143,163,.16)!important;color:#4f6f83!important}
 .amount.transfer{color:var(--muted)!important}
 .activity[data-edit-tx]{cursor:pointer}
+
+/* v25: Invest tab */
+#invest-view .up{color:var(--green2)!important}#invest-view .down,.asset-sheet .down,#investment-dialog .down{color:var(--red)!important}
+.asset-sheet .up,#investment-dialog .up{color:var(--green2)!important}
+.pf-hero,.cash-card{display:grid;gap:10px;padding:20px 18px;border-radius:28px;border:1px solid rgba(83,108,89,.13);background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(245,247,243,.48));box-shadow:0 14px 36px rgba(41,55,46,.06),inset 0 1px 0 rgba(255,255,255,.85);margin-bottom:12px;min-width:0}
+:root[data-theme=dark] .pf-hero,:root[data-theme=dark] .cash-card{background:linear-gradient(145deg,rgba(27,32,32,.66),rgba(14,18,18,.54));border-color:rgba(255,255,255,.085);box-shadow:none}
+.pf-label,.cash-top span{font-size:12px;color:var(--muted);font-weight:700}
+.pf-value{font-size:clamp(30px,9vw,40px);letter-spacing:-.04em;line-height:1.05;overflow-wrap:anywhere}
+.pf-lines{display:grid;gap:0;border-radius:16px;background:rgba(83,108,89,.07);padding:4px 12px}
+.pf-lines div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0;padding:8px 0}
+.pf-lines div+div{border-top:1px solid var(--line)}
+.pf-lines span{font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap}
+.pf-lines b{font-size:13px;white-space:nowrap;text-align:right}
+.alloc-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--line);gap:2px}
+.alloc-bar[hidden]{display:none}
+.alloc-bar i{display:block;height:100%;min-width:4px}
+.alloc-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--muted);font-weight:700}
+.alloc-legend:empty{display:none}
+.alloc-legend span{display:inline-flex;align-items:center;gap:5px}
+.alloc-legend i{width:8px;height:8px;border-radius:50%}
+.pf-foot{font-size:11px;color:var(--muted);line-height:1.5}
+.cash-top{display:grid;gap:4px}
+.cash-top strong{font-size:28px;letter-spacing:-.03em}
+.cash-rows{display:grid;gap:6px}
+.cash-rows div{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+.cash-rows b{color:var(--ink);white-space:nowrap}
+.cash-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.cash-btn{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px;border-radius:16px;border:1px solid rgba(83,108,89,.2);background:linear-gradient(145deg,#5f7a65,#4b6351);color:#f4f7f3;font-size:12px}
+.cash-btn.ghost{background:transparent;color:var(--ink)}
+.cash-btn:disabled{opacity:.45}
+.cash-btn b{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-list,.sr-list,.th-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.pv-list[hidden],#watch-head[hidden]{display:none}
+.tk{flex:0 0 46px;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:#1c241f;color:#f3f5f1;font-size:12px;font-weight:900;letter-spacing:-.02em;overflow:hidden;white-space:nowrap}
+.tk.tk-sm{font-size:10px}
+:root[data-theme=dark] .tk{background:#d9e2d6;color:#121614}
+.pv-card,.sr-item{display:flex;align-items:center;gap:12px;width:100%;min-width:0;margin:0;text-align:left;padding:13px 14px;border-radius:20px;border:1px solid rgba(83,108,89,.12);background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(245,247,243,.5));color:var(--ink);box-shadow:0 8px 22px rgba(41,55,46,.045);transform:none!important}
+:root[data-theme=dark] .pv-card,:root[data-theme=dark] .sr-item{background:linear-gradient(145deg,rgba(27,32,32,.66),rgba(14,18,18,.54));border-color:rgba(255,255,255,.085)}
+.pv-card:active,.sr-item:active{opacity:.75}
+.pv-main,.sr-main{display:grid;gap:3px;flex:1 1 auto;min-width:0}
+.pv-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+.pv-row strong{font-size:14px;white-space:nowrap}
+.pv-row .pv-val{flex:0 0 auto}
+.pv-name{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pv-pnl{flex:0 0 auto;font-size:11px;font-weight:800;white-space:nowrap;color:var(--muted)}
+.pv-meta{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:10px;color:var(--muted);font-weight:650;margin-top:2px}
+.pv-meta b{font-weight:400;opacity:.6}
+.sr-main strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-main span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr-side{flex:0 0 auto;display:grid;justify-items:end;gap:4px;max-width:38%}
+.sr-type{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sr-held{font-size:9px;font-weight:800;padding:3px 7px;border-radius:99px;background:rgba(83,108,89,.14);color:var(--green2)}
+.searchbox{position:relative}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:0;background:rgba(83,108,89,.12);color:var(--ink);font-size:18px;line-height:1}
+.search-clear[hidden]{display:none}
+#instrument-search{padding-right:46px!important}
+.th-row{display:flex;align-items:center;gap:11px;min-width:0;padding:12px 13px;border-radius:18px;border:1px solid rgba(83,108,89,.12);background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(245,247,243,.42))}
+:root[data-theme=dark] .th-row{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08)}
+.th-icon{flex:0 0 36px;height:36px;border-radius:12px;display:grid;place-items:center;font-weight:900}
+.th-icon.buy{background:rgba(83,108,89,.13);color:var(--green2)}.th-icon.sell{background:rgba(176,100,91,.13);color:var(--red)}.th-icon.income{background:rgba(201,166,107,.2);color:#9a7638}
+.th-main{flex:1 1 auto;min-width:0;display:grid;gap:3px}
+.th-top,.th-sub{display:flex;justify-content:space-between;gap:10px;min-width:0}
+.th-top strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th-top b{font-size:13px;white-space:nowrap;flex:0 0 auto}
+.th-sub{font-size:10px;color:var(--muted)}
+.th-sub span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.th-sub span:last-child{flex:0 0 auto}
+.th-row .row-more{flex:0 0 auto}
+.sheet-head-actions{display:flex;gap:8px;align-items:flex-start}
+.star-button{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:20px;line-height:1}
+.star-button.on{color:#c9a66b;border-color:rgba(201,166,107,.45)}
+.asset-head-copy{min-width:0}
+.asset-head-copy .subtle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chart-range{margin:6px 4px 0;font-size:11px;font-weight:800;color:var(--muted)}
+.chart-range:empty{display:none}
+.my-position{display:grid;gap:8px;margin:12px 0;padding:14px;border-radius:20px;background:rgba(83,108,89,.08);border:1px solid rgba(83,108,89,.14)}
+.my-position[hidden]{display:none}
+.my-position .eyebrow{margin:0}
+.mp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mp-grid div{display:grid;gap:2px;min-width:0}
+.mp-grid span{font-size:10px;color:var(--muted);font-weight:700}
+.mp-grid strong{font-size:13px;overflow-wrap:anywhere}
+#asset-actions [hidden]{display:none!important}
+.tsw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:18px;border:1px solid var(--line);background:rgba(100,112,105,.08);margin-top:14px}
+.tsw-btn{min-height:44px;border:0;border-radius:14px;background:transparent;color:var(--muted);font-size:13px;font-weight:850;white-space:nowrap}
+.tsw-btn.active{background:#1c241f;color:#f3f5f1;box-shadow:0 8px 18px rgba(28,36,31,.2)}
+:root[data-theme=dark] .tsw-btn.active{background:#d9e2d6;color:#121614}
+#asset-actions{margin:14px 0 2px}
+.trade-asset{display:flex;align-items:center;gap:12px;padding:12px 13px;border-radius:18px;border:1px solid var(--line);background:rgba(83,108,89,.06);margin:14px 0 4px}
+.trade-asset[hidden],#trade-asset-fields[hidden],#trade-qty-fields[hidden],#trade-income-fields[hidden],.trade-held[hidden],#investment-form label[hidden]{display:none!important}
+.trade-asset-copy{flex:1 1 auto;min-width:0;display:grid;gap:2px}
+.trade-asset-copy strong{font-size:14px}
+.trade-asset-copy span{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trade-held{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 2px 0;font-size:12px;color:var(--muted);font-weight:650}
+.trade-summary{display:grid;gap:6px;margin:14px 0 4px;padding:13px 14px;border-radius:18px;background:rgba(83,108,89,.08)}
+.trade-summary[hidden]{display:none}
+.ts-main{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--muted);font-weight:700}
+.ts-main b{font-size:16px;color:var(--ink);text-align:right}
+.ts-main small{display:block;font-size:11px;color:var(--muted);font-weight:650}
+.ts-note,.ts-warn{margin:0;font-size:11px;font-weight:700;color:var(--muted)}
+.ts-warn{color:var(--red)}
 #quick-categories .quick-chip.active{background:linear-gradient(145deg,#2b3a30,#1c241f)!important;color:#f3f5f1!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(28,36,31,.22)!important}
 :root[data-theme=dark] #quick-categories .quick-chip.active{background:linear-gradient(145deg,#d9e2d6,#b8c6b5)!important;color:#121614!important}
 </style>
@@ -1516,31 +1617,44 @@ body.keyboard-open .bottom-nav{transition:none!important}
     <section id="invest-view" class="view">
       <p class="eyebrow" data-i18n="markets">MARKETS</p>
       <div class="title-row"><div><h1 data-i18n="invest">Invest</h1><p class="subtle" data-i18n="investSubtitle">Track what you own. No trades are placed here.</p></div></div>
-      <article class="invest-hero">
-        <div class="invest-hero-main"><span data-i18n="portfolioValue">Portfolio value</span><strong id="portfolio-value">—</strong><small id="portfolio-cost-line">—</small></div>
-        <div class="invest-hero-pnl"><span data-i18n="unrealisedPnl">Unrealised P/L</span><strong id="portfolio-pnl">—</strong><small id="portfolio-pnl-percent">—</small></div>
-      </article>
-      <article class="investment-capital-card">
-        <div class="capital-card-main">
-          <div class="capital-card-head"><span data-i18n="investmentCapital">Investment capital</span><span class="capital-badge" id="investment-main-balance">—</span></div>
-          <strong id="investment-capital">—</strong>
-          <div class="capital-card-bottom"><span data-i18n="allocatedCapital">Allocated from budget</span><strong id="investment-available">—</strong></div>
-          <small id="investment-committed">—</small>
+
+      <article class="pf-hero">
+        <span class="pf-label" data-i18n="portfolioValue">Portfolio value</span>
+        <strong class="pf-value" id="pf-value">—</strong>
+        <div class="pf-lines">
+          <div><span data-i18n="pfAllTime">All-time return</span><b id="pf-pnl">—</b></div>
+          <div><span data-i18n="pfToday">Today</span><b id="pf-day">—</b></div>
         </div>
-        <button class="capital-transfer" type="button" data-open="investment-capital-dialog"><span>⇄</span><b data-i18n="transferFromBudget">Move from budget</b></button>
+        <div class="alloc-bar" id="pf-alloc-bar"></div>
+        <div class="alloc-legend" id="pf-alloc-legend"></div>
+        <div class="pf-foot" id="pf-foot"></div>
       </article>
-      <div class="section-head invest-search-head"><div><h2 data-i18n="findSecurity">Find a security</h2><p class="subtle" data-i18n="findSecurityHint">Search an asset to inspect its price and chart.</p></div></div>
-      <div class="searchbox"><svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><input id="instrument-search" autocomplete="off" enterkeyhint="search" data-i18n-placeholder="searchPlaceholder" placeholder="AAPL, Microsoft, ETF…"></div>
-      <div id="search-results" class="search-results"></div>
+
+      <article class="cash-card">
+        <div class="cash-top"><span data-i18n="freeCash">Free to invest</span><strong id="cash-available">—</strong></div>
+        <div class="cash-rows">
+          <div><span data-i18n="allocatedCapital">Allocated from budget</span><b id="cash-capital">—</b></div>
+          <div><span data-i18n="committedCapital">Already invested</span><b id="cash-committed">—</b></div>
+        </div>
+        <div class="cash-actions"><button type="button" class="cash-btn" id="cash-add"><span>＋</span><b data-i18n="cashAdd">Add from budget</b></button><button type="button" class="cash-btn ghost" id="cash-return"><span>↩</span><b data-i18n="cashReturn">Back to budget</b></button></div>
+      </article>
+
+      <div class="section-head"><h2 data-i18n="myAssets">My assets</h2><button class="link-button" id="trade-new" type="button" data-i18n="addTrade">Add trade</button></div>
+      <div id="positions" class="pv-list"></div>
+
+      <div class="section-head" id="watch-head"><h2 data-i18n="watchlist">Watchlist</h2></div>
+      <div id="watchlist" class="pv-list"></div>
+
+      <div class="section-head"><div><h2 data-i18n="findSecurity">Find an asset</h2><p class="subtle" data-i18n="findHint">Stocks, ETFs, crypto. Tap an asset to see its chart and buy.</p></div></div>
+      <div class="searchbox"><svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><input id="instrument-search" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" data-i18n-placeholder="searchPlaceholder" placeholder="AAPL, Microsoft, ETF…"><button type="button" class="search-clear" id="search-clear" aria-label="Clear" hidden>×</button></div>
+      <div id="search-results" class="sr-list"></div>
+
+      <div class="section-head"><div><h2 data-i18n="tradeHistory">Trade history</h2><p class="subtle" data-i18n="historyHint">Tap × to delete a mistaken entry.</p></div></div>
+      <div id="investment-history" class="th-list"></div>
       <p class="disclaimer" data-i18n="marketDisclaimer">Market data may be delayed or limited by provider coverage. Tracking only, not investment advice.</p>
-      <div class="invest-stats"><article><span data-i18n="positions">Positions</span><strong id="position-count">0</strong></article><article><span data-i18n="realisedPnl">Realised P/L</span><strong id="realised-pnl">—</strong></article></div>
-      <div class="section-head"><div><h2 data-i18n="positions">Positions</h2><p class="subtle" data-i18n="positionsHint">Average cost, quantity, market value and P/L.</p></div><button class="link-button" data-open="investment-dialog" data-i18n="addTrade">Add trade</button></div>
-      <div id="positions" class="position-list"></div>
-      <div class="section-head"><div><h2 data-i18n="tradeHistory">Trade history</h2><p class="subtle" data-i18n="tradeHistoryHint">Every recorded buy and sell.</p></div></div>
-      <div id="investment-history" class="trade-history"></div>
     </section>
 
-    <section id="analytics-view" class="view">
+<section id="analytics-view" class="view">
       <p class="eyebrow" data-i18n="analyticsEyebrow">ANALYTICS</p>
       <div class="month-switch"><button type="button" class="month-arrow" id="month-prev" aria-label="Previous month">‹</button><h1 id="analytics-month">—</h1><button type="button" class="month-arrow" id="month-next" aria-label="Next month">›</button></div>
       <article class="analytics-hero">
@@ -1630,21 +1744,26 @@ body.keyboard-open .bottom-nav{transition:none!important}
   <div class="two-actions"><button class="secondary-action danger-action" type="button" id="delete-goal" data-i18n="delete">Delete</button><button class="main-action" type="submit" data-i18n="save">Save</button></div>
 </form></dialog>
 
-<dialog id="investment-dialog"><form class="sheet" id="investment-form">
-  <div class="sheet-head"><div><p class="eyebrow" data-i18n="ledger">LEDGER</p><h2 data-i18n="recordTrade">Record a trade</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
-  <p class="form-note" data-i18n="tradeNote">This records a trade in your personal ledger. It does not send an order to a broker.</p>
-  <div class="trade-toggle"><button type="button" class="trade active" data-side="BUY" data-i18n="buy">Buy</button><button type="button" class="trade" data-side="SELL" data-i18n="sell">Sell</button></div>
+<dialog id="investment-dialog"><form class="sheet" id="investment-form" novalidate>
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="ledger">LEDGER</p><h2 id="trade-title" data-i18n="recordTrade">Record a trade</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <div class="tsw" id="trade-side"><button type="button" class="tsw-btn active" data-side="BUY" data-i18n="buy">Buy</button><button type="button" class="tsw-btn" data-side="SELL" data-i18n="sell">Sell</button><button type="button" class="tsw-btn" data-side="INCOME" data-i18n="incomeSide">Dividend</button></div>
   <input type="hidden" name="side" value="BUY">
-  <label><span data-i18n="symbol">Symbol</span><input name="symbol" placeholder="AAPL" required></label>
-  <label><span data-i18n="instrument">Instrument</span><input name="instrument_name" placeholder="Apple Inc." required></label>
-  <input type="hidden" name="quantity" value="">
-  <div class="two"><label><span data-i18n="tradeAmount">Сумма сделки</span><input name="trade_amount" inputmode="decimal" placeholder="1000" required></label><label><span data-i18n="price">Цена покупки</span><input name="price" inputmode="decimal" placeholder="100" required></label></div>
-  <div class="calculated-quantity"><span data-i18n="calculatedQuantity">Количество акций</span><strong id="trade-quantity">—</strong></div>
-  <div class="two"><label><span data-i18n="fee">Fee</span><input name="fee" inputmode="decimal" value="0"></label><label><span data-i18n="currency">Currency</span><select name="currency" id="investment-currency"></select></label></div>
-  <div class="trade-total"><span data-i18n="tradeTotal">Trade total</span><strong id="trade-total">—</strong></div>
+  <div class="trade-asset" id="trade-asset-chip" hidden><span class="ticker" id="trade-ticker">—</span><div class="trade-asset-copy"><strong id="trade-asset-symbol"></strong><span id="trade-asset-name"></span></div><button type="button" class="link-button" id="trade-asset-change" data-i18n="change">Change</button></div>
+  <div id="trade-asset-fields">
+    <div class="two"><label><span data-i18n="symbol">Symbol</span><input name="symbol" autocapitalize="characters" autocomplete="off" placeholder="AAPL"></label><label><span data-i18n="assetType">Type</span><select name="asset_type" id="trade-asset-type"><option value="Stock">Stock</option><option value="ETF">ETF</option><option value="Mutual fund">Mutual fund</option><option value="Bond">Bond</option><option value="Crypto">Crypto</option><option value="Other">Other</option></select></label></div>
+    <label><span data-i18n="instrument">Name</span><input name="instrument_name" autocomplete="off" data-i18n-placeholder="instrumentPlaceholder" placeholder="Apple Inc., government bond…"></label>
+  </div>
+  <div class="trade-held" id="trade-held" hidden><span id="trade-held-text"></span><button type="button" class="link-button" id="trade-sell-all" data-i18n="sellAll">Sell all</button></div>
+  <div id="trade-qty-fields">
+    <div class="two"><label><span data-i18n="pricePerUnit">Price per unit</span><input name="price" inputmode="decimal" autocomplete="off" placeholder="0.00"></label><label><span data-i18n="quantity">Quantity</span><input name="quantity" inputmode="decimal" autocomplete="off" placeholder="0"></label></div>
+    <label><span data-i18n="orAmount">Or the amount to spend</span><input name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00"></label>
+  </div>
+  <div id="trade-income-fields" hidden><label><span data-i18n="incomeAmount">Payment amount</span><input name="income_amount" inputmode="decimal" autocomplete="off" placeholder="0.00"></label></div>
+  <div class="two"><label><span id="trade-fee-label" data-i18n="fee">Fee</span><input name="fee" inputmode="decimal" autocomplete="off" value="0"></label><label><span data-i18n="currency">Currency</span><select name="currency" id="investment-currency"></select></label></div>
+  <label><span data-i18n="date">Date</span><input name="date" type="date"></label>
+  <div class="trade-summary" id="trade-summary"></div>
   <div id="investment-error" class="form-error" role="alert" hidden></div>
-  <label><span data-i18n="assetType">Type</span><select name="asset_type"><option>Stock</option><option>ETF</option><option>Mutual fund</option><option>Bond</option><option>Crypto</option><option>Other</option></select></label>
-  <button class="main-action" type="submit" data-i18n="saveTrade">Save trade</button>
+  <button class="main-action" type="submit" id="trade-submit" data-i18n="saveTrade">Save trade</button>
 </form></dialog>
 
 
@@ -1700,11 +1819,12 @@ body.keyboard-open .bottom-nav{transition:none!important}
 </form></dialog>
 
 <dialog id="asset-dialog"><div class="sheet asset-sheet">
-  <div class="sheet-head"><div><p class="eyebrow" data-i18n="assetDetails">ASSET</p><h2 id="asset-title">—</h2><p class="subtle" id="asset-subtitle">—</p></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <div class="sheet-head"><div class="asset-head-copy"><p class="eyebrow" id="asset-eyebrow" data-i18n="assetDetails">ASSET</p><h2 id="asset-title">—</h2><p class="subtle" id="asset-subtitle">—</p></div><div class="sheet-head-actions"><button type="button" class="star-button" id="asset-star" aria-label="Watchlist">☆</button><button type="button" class="close" data-close aria-label="Close">×</button></div></div>
   <div class="asset-price-row"><div><strong id="asset-price">—</strong><span id="asset-change">—</span></div></div>
-  <div class="chart-card"><div class="chart-tabs" id="chart-tabs"><button class="active" data-range="1d">1D</button><button data-range="1w">1W</button><button data-range="1mo">1M</button><button data-range="3mo">3M</button><button data-range="1y">1Y</button><button data-range="5y">5Y</button></div><canvas id="asset-chart" height="210"></canvas></div>
+  <div class="chart-card"><div class="chart-tabs" id="chart-tabs"><button class="active" data-range="1d">1D</button><button data-range="1w">1W</button><button data-range="1mo">1M</button><button data-range="3mo">3M</button><button data-range="1y">1Y</button><button data-range="5y">5Y</button></div><canvas id="asset-chart" height="210"></canvas><p class="chart-range" id="chart-range"></p></div>
+  <div class="two-actions single" id="asset-actions"><button class="secondary-action" type="button" id="asset-sell" data-i18n="sell" hidden>Sell</button><button class="main-action" type="button" id="asset-add" data-i18n="buy">Buy</button></div>
+  <div class="my-position" id="asset-position" hidden></div>
   <div class="asset-meta" id="asset-meta"></div>
-  <button class="main-action" type="button" id="asset-add" data-i18n="addToPortfolio">Add to portfolio</button>
   <p class="disclaimer" data-i18n="marketDisclaimer">Market data may be delayed. Tracking only, not investment advice.</p>
 </div></dialog>
 
@@ -2216,6 +2336,241 @@ $$('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.na
 $('#settings-button').onclick=()=>showView('settings');
 const baseApplyLanguage=applyLanguage;
 applyLanguage=function(l){baseApplyLanguage(l);if(state.dashboard)renderAccounts();if(anData&&isActive('analytics'))renderAnalytics();if(isActive('settings'))renderRecurring()};
+})();
+</script>
+<script id="finplan-invest-v25">
+/* v25: Invest tab — portfolio summary with allocation, free cash, positions, watchlist,
+   search, asset sheet with your position, buy / sell / dividend form, editable history. */
+(()=>{
+const L={
+  ru:{investSubtitle:"Учёт того, чем владеешь. Сделки здесь не отправляются брокеру.",pfAllTime:"Доход за всё время",pfToday:"За сегодня",freeCash:"Свободно для покупок",cashAdd:"Пополнить",cashReturn:"Вернуть в бюджет",myAssets:"Мои активы",findHint:"Акции, ETF, крипта. Нажми на актив, чтобы посмотреть график и купить.",historyHint:"Нажми ×, чтобы удалить ошибочную запись.",incomeSide:"Дивиденд",change:"Изменить",instrument:"Название",instrumentPlaceholder:"Apple Inc., ОВДП…",sellAll:"Продать всё",pricePerUnit:"Цена за 1 шт.",quantity:"Количество",orAmount:"Или сумма покупки",incomeAmount:"Сумма выплаты",fee:"Комиссия",tax:"Налог",saveTrade:"Сохранить сделку",recordTrade:"Новая сделка",buy:"Купить",sell:"Продать",typeStock:"Акция",typeETF:"ETF",typeFund:"Фонд",typeBond:"Облигация",typeCrypto:"Крипта",typeIndex:"Индекс",typeOther:"Другое",invested:"Вложено",realisedShort:"зафиксировано",dividends:"дивиденды",noPositions:"Пока ничего нет. Найди актив ниже или добавь сделку вручную.",noTrades:"Сделок пока нет.",held:"В портфеле",units:"шт.",ofPortfolio:"{p} портфеля",todayShort:"сегодня {p}",atCost:"по цене покупки",noQuote:"нет котировки",youHave:"У тебя {q} шт. · средняя {a}",myPosition:"Моя позиция",avgCost:"Средняя цена",marketValue:"Стоимость",pnl:"Доход",income:"Дивиденды",total:"Итого",approx:"≈ {x}",freeAfter:"Свободно для покупок: {x}",notEnough:"Не хватает {x}. Пополни из бюджета.",youGet:"Получишь {x}",expectedPnl:"Результат сделки ≈ {x}",netIncome:"Чистыми: {x}",confirmDeleteTrade:"Удалить эту запись из истории?",errSellMore:"Нельзя продать больше, чем есть. На эту дату у тебя {q} шт.",errNeeded:"Эта покупка нужна для более поздней продажи. Сначала удали продажу.",errFields:"Заполни тикер, цену и количество.",errIncome:"Укажи сумму выплаты.",errTax:"Налог не может быть больше выплаты.",watchAdded:"Добавлено в избранное",watchRemoved:"Убрано из избранного",rangeChange:"За период: {p}",prevClose:"Закрытие вчера",exchangeName:"Биржа",assetCurrency:"Валюта",source:"Источник",sideBuy:"Покупка",sideSell:"Продажа",sideIncome:"Дивиденд",profit:"прибыль {x}",loss:"убыток {x}",missingRate:"Нет курса для {c}: стоимость посчитана частично.",noInstruments:"Ничего не найдено."},
+  uk:{investSubtitle:"Облік того, чим володієш. Угоди тут не надсилаються брокеру.",pfAllTime:"Дохід за весь час",pfToday:"За сьогодні",freeCash:"Вільно для купівлі",cashAdd:"Поповнити",cashReturn:"Повернути в бюджет",myAssets:"Мої активи",findHint:"Акції, ETF, крипта. Натисни на актив, щоб побачити графік і купити.",historyHint:"Натисни ×, щоб видалити помилковий запис.",incomeSide:"Дивіденд",change:"Змінити",instrument:"Назва",instrumentPlaceholder:"Apple Inc., ОВДП…",sellAll:"Продати все",pricePerUnit:"Ціна за 1 шт.",quantity:"Кількість",orAmount:"Або сума купівлі",incomeAmount:"Сума виплати",fee:"Комісія",tax:"Податок",saveTrade:"Зберегти угоду",recordTrade:"Нова угода",buy:"Купити",sell:"Продати",typeStock:"Акція",typeETF:"ETF",typeFund:"Фонд",typeBond:"Облігація",typeCrypto:"Крипта",typeIndex:"Індекс",typeOther:"Інше",invested:"Вкладено",realisedShort:"зафіксовано",dividends:"дивіденди",noPositions:"Поки нічого немає. Знайди актив нижче або додай угоду вручну.",noTrades:"Угод поки немає.",held:"У портфелі",units:"шт.",ofPortfolio:"{p} портфеля",todayShort:"сьогодні {p}",atCost:"за ціною купівлі",noQuote:"немає котирування",youHave:"У тебе {q} шт. · середня {a}",myPosition:"Моя позиція",avgCost:"Середня ціна",marketValue:"Вартість",pnl:"Дохід",income:"Дивіденди",total:"Разом",approx:"≈ {x}",freeAfter:"Вільно для купівлі: {x}",notEnough:"Бракує {x}. Поповни з бюджету.",youGet:"Отримаєш {x}",expectedPnl:"Результат угоди ≈ {x}",netIncome:"Чистими: {x}",confirmDeleteTrade:"Видалити цей запис з історії?",errSellMore:"Не можна продати більше, ніж є. На цю дату у тебе {q} шт.",errNeeded:"Ця купівля потрібна для пізнішого продажу. Спершу видали продаж.",errFields:"Заповни тікер, ціну і кількість.",errIncome:"Вкажи суму виплати.",errTax:"Податок не може бути більшим за виплату.",watchAdded:"Додано в обране",watchRemoved:"Прибрано з обраного",rangeChange:"За період: {p}",prevClose:"Закриття вчора",exchangeName:"Біржа",assetCurrency:"Валюта",source:"Джерело",sideBuy:"Купівля",sideSell:"Продаж",sideIncome:"Дивіденд",profit:"прибуток {x}",loss:"збиток {x}",missingRate:"Немає курсу для {c}: вартість пораховано частково.",noInstruments:"Нічого не знайдено."},
+  en:{investSubtitle:"Track what you own. No orders are sent to a broker.",pfAllTime:"All-time return",pfToday:"Today",freeCash:"Free to invest",cashAdd:"Add from budget",cashReturn:"Back to budget",myAssets:"My assets",findHint:"Stocks, ETFs, crypto. Tap an asset to see its chart and buy.",historyHint:"Tap × to delete a mistaken entry.",incomeSide:"Dividend",change:"Change",instrument:"Name",instrumentPlaceholder:"Apple Inc., government bond…",sellAll:"Sell all",pricePerUnit:"Price per unit",quantity:"Quantity",orAmount:"Or the amount to spend",incomeAmount:"Payment amount",fee:"Fee",tax:"Tax",saveTrade:"Save trade",recordTrade:"New trade",buy:"Buy",sell:"Sell",typeStock:"Stock",typeETF:"ETF",typeFund:"Fund",typeBond:"Bond",typeCrypto:"Crypto",typeIndex:"Index",typeOther:"Other",invested:"Invested",realisedShort:"realised",dividends:"dividends",noPositions:"Nothing here yet. Find an asset below or add a trade by hand.",noTrades:"No trades yet.",held:"Owned",units:"pcs",ofPortfolio:"{p} of portfolio",todayShort:"today {p}",atCost:"at cost",noQuote:"no quote",youHave:"You have {q} · average {a}",myPosition:"My position",avgCost:"Average price",marketValue:"Value",pnl:"Return",income:"Dividends",total:"Total",approx:"≈ {x}",freeAfter:"Free to invest: {x}",notEnough:"{x} short. Add money from your budget.",youGet:"You receive {x}",expectedPnl:"Trade result ≈ {x}",netIncome:"Net: {x}",confirmDeleteTrade:"Delete this entry from the history?",errSellMore:"You can't sell more than you have. On that date you had {q}.",errNeeded:"A later sale depends on this purchase. Delete the sale first.",errFields:"Fill in the symbol, price and quantity.",errIncome:"Enter the payment amount.",errTax:"Tax can't be larger than the payment.",watchAdded:"Added to watchlist",watchRemoved:"Removed from watchlist",rangeChange:"Over this period: {p}",prevClose:"Previous close",exchangeName:"Exchange",assetCurrency:"Currency",source:"Source",sideBuy:"Buy",sideSell:"Sell",sideIncome:"Dividend",profit:"profit {x}",loss:"loss {x}",missingRate:"No rate for {c}: the value is partly counted.",noInstruments:"No instruments found."}
+};
+Object.keys(L).forEach(l=>Object.assign(I18N[l],L[l]));
+
+const lang=()=>state.me?.language||localStorage.getItem('finplan_lang')||'uk';
+const locale=()=>({en:'en-GB',ru:'ru-RU'}[lang()]||'uk-UA');
+const tf=(k,v={})=>t(k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
+const field=(f,n)=>f.querySelector(`[name="${n}"]`);
+const num=v=>{const n=Number(String(v??'').replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:0};
+const acc=()=>(inv.portfolio?.account_currency)||state.me?.currency||'UAH';
+const TYPE_KEYS={Stock:'typeStock',ETF:'typeETF','Mutual fund':'typeFund',Bond:'typeBond',Crypto:'typeCrypto',Index:'typeIndex',Other:'typeOther'};
+const typeLabel=x=>TYPE_KEYS[x]?t(TYPE_KEYS[x]):(x||t('typeOther'));
+const TYPE_COLORS={Stock:'#536c59',ETF:'#c9a66b',Crypto:'#6b8fa3','Mutual fund':'#a3b18a',Bond:'#8a7f9e',Index:'#4f6f73',Other:'#9c6644'};
+const qtyFmt=q=>Number(q).toLocaleString(locale(),{maximumFractionDigits:8});
+const pct=v=>v==null||!Number.isFinite(Number(v))?'':`${v>0?'+':v<0?'−':''}${Math.abs(Number(v)).toLocaleString(locale(),{minimumFractionDigits:2,maximumFractionDigits:2})}%`;
+const signed=(v,c)=>`${v>0?'+':v<0?'−':''}${fmt(Math.abs(v),c)}`;
+const tone=v=>v>0?'up':v<0?'down':'';
+const pad=n=>String(n).padStart(2,'0');
+const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+function badge(symbol){const base=(String(symbol||'?').split(/[.=]/)[0].replace(/-USD$/,'').slice(0,5))||'?';return `<span class="tk${base.length>4?' tk-sm':''}">${esc(base)}</span>`}
+
+let inv={portfolio:null,trades:[],capital:null,watch:[]};
+const positions=()=>inv.portfolio?.positions||[];
+const findPosition=(symbol,currency)=>positions().find(p=>p.symbol===String(symbol).toUpperCase()&&(!currency||p.currency===currency));
+
+/* ---------- load & render ---------- */
+loadInvest=async function(){
+  try{
+    const [portfolio,trades,capital,watch]=await Promise.all([api('/portfolio'),api('/investments/transactions'),api('/investments/capital'),api('/watchlist').catch(()=>[])]);
+    inv={portfolio,trades,capital,watch};state.capital=capital;renderInvest();
+  }catch(e){toast(e.message)}
+};
+function renderInvest(){
+  const p=inv.portfolio;if(!p)return;const c=acc();const list=positions();
+  const value=Number(p.total_current_value||0),cost=Number(p.total_cost_basis||0);
+  const realised=Number(p.total_realised_pnl||0),income=Number(p.total_income||0),unreal=Number(p.total_unrealised_pnl||0);
+  const allTime=unreal+realised+income;
+  $('#pf-value').textContent=fmt(value,c);
+  const pnl=$('#pf-pnl');pnl.textContent=list.length||realised||income?`${signed(allTime,c)}${cost>0?' · '+pct(allTime/cost*100):''}`:'—';pnl.className=tone(allTime);
+  const day=$('#pf-day');const dv=Number(p.total_day_change||0);day.textContent=list.length?`${signed(dv,c)}${p.total_day_percent!=null?' · '+pct(Number(p.total_day_percent)):''}`:'—';day.className=tone(dv);
+  const alloc=p.allocation||[];
+  $('#pf-alloc-bar').innerHTML=alloc.map(a=>`<i style="width:${Number(a.weight)}%;background:${TYPE_COLORS[a.type]||TYPE_COLORS.Other}"></i>`).join('');
+  $('#pf-alloc-bar').hidden=!alloc.length;
+  $('#pf-alloc-legend').innerHTML=alloc.map(a=>`<span><i style="background:${TYPE_COLORS[a.type]||TYPE_COLORS.Other}"></i>${esc(typeLabel(a.type))} ${Math.round(Number(a.weight))}%</span>`).join('');
+  const foot=[`${t('invested')} ${fmt(cost,c)}`];
+  if(realised)foot.push(`${t('realisedShort')} ${signed(realised,c)}`);
+  if(income)foot.push(`${t('dividends')} +${fmt(income,c)}`);
+  if(p.missing_rates?.length)foot.push(tf('missingRate',{c:p.missing_rates.join(', ')}));
+  $('#pf-foot').textContent=foot.join(' · ');
+
+  const cap=inv.capital;if(cap){$('#cash-available').textContent=fmt(cap.available,cap.currency);$('#cash-capital').textContent=fmt(cap.capital,cap.currency);$('#cash-committed').textContent=fmt(cap.committed,cap.currency);$('#cash-return').disabled=!(Number(cap.available)>0)}
+
+  $('#positions').innerHTML=list.length?list.map((x,i)=>{
+    const priced=x.current_value!=null;const val=priced?Number(x.current_value):Number(x.cost_basis);
+    const pl=Number(x.unrealised_pnl||0),plPct=Number(x.cost_basis)>0?pl/Number(x.cost_basis)*100:0;
+    const right=priced?`<span class="pv-pnl ${tone(pl)}">${signed(pl,x.currency)} · ${pct(plPct)}</span>`:`<span class="pv-pnl">${t('atCost')}</span>`;
+    const meta=[`${qtyFmt(x.quantity)} ${t('units')} × ${fmt(x.average_cost,x.currency)}`];
+    if(x.change_percent!=null)meta.push(`<span class="${tone(Number(x.change_percent))}">${tf('todayShort',{p:pct(Number(x.change_percent))})}</span>`);
+    if(list.length>1)meta.push(tf('ofPortfolio',{p:`${Math.round(Number(x.weight))}%`}));
+    return `<button type="button" class="pv-card" data-pos="${i}">${badge(x.symbol)}<span class="pv-main"><span class="pv-row"><strong>${esc(x.symbol)}</strong><strong class="pv-val">${fmt(val,x.currency)}</strong></span><span class="pv-row"><span class="pv-name">${esc(x.name)} · ${esc(typeLabel(x.asset_type))}</span>${right}</span><span class="pv-meta">${meta.join('<b>·</b>')}</span></span></button>`;
+  }).join(''):`<div class="empty">${t('noPositions')}</div>`;
+  $$('[data-pos]').forEach(b=>b.onclick=()=>{const x=list[Number(b.dataset.pos)];openAsset(x.symbol,x.name,x.asset_type)});
+
+  const w=inv.watch||[];$('#watch-head').hidden=!w.length;$('#watchlist').hidden=!w.length;
+  $('#watchlist').innerHTML=w.map((x,i)=>`<button type="button" class="pv-card watch-card" data-watch="${i}">${badge(x.symbol)}<span class="pv-main"><span class="pv-row"><strong>${esc(x.symbol)}</strong><strong class="pv-val">${x.price!=null?fmt(x.price,x.currency||'USD'):'—'}</strong></span><span class="pv-row"><span class="pv-name">${esc(x.name)}</span><span class="pv-pnl ${tone(Number(x.change_percent))}">${x.change_percent!=null?pct(Number(x.change_percent)):''}</span></span></span></button>`).join('');
+  $$('[data-watch]').forEach(b=>b.onclick=()=>{const x=w[Number(b.dataset.watch)];openAsset(x.symbol,x.name,x.type)});
+
+  renderHistory();
+}
+function renderHistory(){
+  const tr=inv.trades||[];
+  $('#investment-history').innerHTML=tr.length?tr.map(x=>{
+    const side=x.side,qty=Number(x.quantity),price=Number(x.price),fee=Number(x.fee||0);
+    const date=new Date(x.occurred_at).toLocaleDateString(locale(),{day:'2-digit',month:'short',year:'numeric'});
+    let title,amount,sub,icon,cls;
+    if(side==='INCOME'){title=t('sideIncome');amount=`+${fmt(price-fee,x.currency)}`;sub=fee?`${fmt(price,x.currency)} − ${t('tax').toLowerCase()} ${fmt(fee,x.currency)}`:'';icon='＋';cls='income'}
+    else if(side==='SELL'){title=t('sideSell');amount=`+${fmt(qty*price-fee,x.currency)}`;const r=x.realised_pnl!=null?Number(x.realised_pnl):null;sub=`${qtyFmt(qty)} × ${fmt(price,x.currency)}${r!=null?` · <span class="${tone(r)}">${tf(r>=0?'profit':'loss',{x:fmt(Math.abs(r),x.currency)})}</span>`:''}`;icon='↓';cls='sell'}
+    else{title=t('sideBuy');amount=`−${fmt(qty*price+fee,x.currency)}`;sub=`${qtyFmt(qty)} × ${fmt(price,x.currency)}${fee?` + ${fmt(fee,x.currency)}`:''}`;icon='↑';cls='buy'}
+    return `<article class="th-row"><span class="th-icon ${cls}">${icon}</span><div class="th-main"><div class="th-top"><strong>${esc(x.symbol)} · ${title}</strong><b>${amount}</b></div><div class="th-sub"><span>${sub}</span><span>${date}</span></div></div><button type="button" class="row-more" data-del-trade="${x.id}" aria-label="${t('delete')}">×</button></article>`;
+  }).join(''):`<div class="empty">${t('noTrades')}</div>`;
+  $$('[data-del-trade]').forEach(b=>b.onclick=()=>deleteTrade(Number(b.dataset.delTrade)));
+}
+function friendlyError(msg){
+  msg=String(msg||'');
+  if(/needed by a later sale/.test(msg))return t('errNeeded');
+  let m=msg.match(/only ([\d.]+) recorded/);if(m)return tf('errSellMore',{q:qtyFmt(m[1])});
+  if(/Tax cannot/.test(msg))return t('errTax');
+  m=msg.match(/Available:\s*([\d.]+)\s*([A-Z]{3})?/);if(m&&/capital/i.test(msg))return `${t('notEnoughCapital')} ${t('availableToInvest')}: ${fmt(m[1],m[2]||acc())}`;
+  return msg;
+}
+async function deleteTrade(id){if(!confirm(t('confirmDeleteTrade')))return;try{await api(`/investments/transactions/${id}`,{method:'DELETE'});toast(t('deleted'));await loadInvest()}catch(e){toast(friendlyError(e.message))}}
+
+/* ---------- free cash ---------- */
+function openCapital(direction){$('#investment-capital-direction').value=direction;$('#investment-capital-form [name=amount]').value='';syncCapitalDialog();openDialog('investment-capital-dialog')}
+$('#cash-add').onclick=()=>openCapital('allocate');
+$('#cash-return').onclick=()=>openCapital('return');
+
+/* ---------- search ---------- */
+(()=>{const old=$('#instrument-search');old.replaceWith(old.cloneNode(true))})();
+const search=$('#instrument-search');let searchTimer=0,searchSeq2=0;
+function renderResults(results){
+  $('#search-results').innerHTML=results.length?results.map((x,i)=>{const held=positions().some(p=>p.symbol===String(x.symbol).toUpperCase());return `<button type="button" class="sr-item" data-sr="${i}">${badge(x.symbol)}<span class="sr-main"><strong>${esc(x.symbol)}</strong><span>${esc(x.name)}</span></span><span class="sr-side"><span class="sr-type">${esc(typeLabel(x.type))}${x.exchange?` · ${esc(x.exchange)}`:''}</span>${held?`<span class="sr-held">${t('held')}</span>`:''}</span></button>`}).join(''):`<div class="empty">${t('noInstruments')}</div>`;
+  $$('[data-sr]').forEach(b=>b.onclick=()=>{const x=results[Number(b.dataset.sr)];search.blur();openAsset(x.symbol,x.name,x.type)});
+}
+search.addEventListener('input',()=>{clearTimeout(searchTimer);const q=search.value.trim();const seq=++searchSeq2;$('#search-clear').hidden=!search.value;if(q.length<2){$('#search-results').innerHTML='';return}
+  searchTimer=setTimeout(async()=>{try{const r=await api(`/markets/search?q=${encodeURIComponent(q)}`);if(seq===searchSeq2)renderResults(r)}catch(e){if(seq===searchSeq2)$('#search-results').innerHTML=`<div class="empty">${esc(e.message)}</div>`}},300)});
+search.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search.blur()}});
+$('#search-clear').onclick=()=>{search.value='';$('#search-clear').hidden=true;$('#search-results').innerHTML='';search.focus()};
+
+/* ---------- asset sheet ---------- */
+let asset={symbol:null,name:'',type:'Stock',info:null,range:'1mo'};
+openAsset=async function(symbol,name,type){
+  symbol=String(symbol).toUpperCase();asset={symbol,name:name||symbol,type:type||'Stock',info:null,range:'1mo'};
+  assetState.symbol=symbol;assetState.name=name;assetState.type=type;
+  $('#asset-title').textContent=symbol;$('#asset-subtitle').textContent=name||'';$('#asset-eyebrow').textContent=typeLabel(asset.type).toUpperCase();
+  $('#asset-price').textContent=t('loading');$('#asset-change').textContent='';$('#asset-change').className='';$('#asset-meta').innerHTML='';$('#chart-range').textContent='';
+  syncStar();renderMyPosition();openDialog('asset-dialog');loadRange('1mo');
+  try{const info=await api(`/markets/instruments/${encodeURIComponent(symbol)}`);if(asset.symbol!==symbol)return;asset.info=info;renderAssetQuote()}
+  catch(e){if(asset.symbol!==symbol)return;$('#asset-price').textContent='—';$('#asset-change').textContent=t('noQuote')}
+};
+function renderAssetQuote(){
+  const i=asset.info;if(!i)return;
+  $('#asset-price').textContent=fmt(i.price,i.currency);
+  const ch=Number(i.change||0),cp=Number(i.change_percent||0);
+  $('#asset-change').textContent=`${signed(ch,i.currency)} · ${pct(cp)}`;$('#asset-change').className=tone(ch);
+  if(i.name&&!asset.name)asset.name=i.name;
+  $('#asset-meta').innerHTML=[[t('prevClose'),fmt(i.previous_close,i.currency)],[t('assetCurrency'),esc(i.currency)],[t('exchangeName'),esc(i.exchange||'—')],[t('source'),esc(i.source||'—')]].map(([k,v])=>`<div><span>${k}</span><strong>${v}</strong></div>`).join('');
+  renderMyPosition();
+}
+function renderMyPosition(){
+  const box=$('#asset-position');const pos=positions().filter(p=>p.symbol===asset.symbol);
+  $('#asset-sell').hidden=!pos.length;$('#asset-actions').classList.toggle('single',!pos.length);
+  if(!pos.length){box.hidden=true;box.innerHTML='';return}
+  box.hidden=false;
+  box.innerHTML=`<p class="eyebrow">${t('myPosition')}</p>`+pos.map(p=>{const pl=Number(p.unrealised_pnl||0),plPct=Number(p.cost_basis)>0?pl/Number(p.cost_basis)*100:0;const rows=[[t('quantity'),`${qtyFmt(p.quantity)} ${t('units')}`],[t('avgCost'),fmt(p.average_cost,p.currency)],[t('marketValue'),p.current_value!=null?fmt(p.current_value,p.currency):`${fmt(p.cost_basis,p.currency)}`],[t('pnl'),p.unrealised_pnl!=null?`<span class="${tone(pl)}">${signed(pl,p.currency)} · ${pct(plPct)}</span>`:'—']];if(Number(p.income))rows.push([t('income'),`+${fmt(p.income,p.currency)}`]);return `<div class="mp-grid">${rows.map(([k,v])=>`<div><span>${k}</span><strong>${v}</strong></div>`).join('')}</div>`}).join('');
+}
+async function loadRange(range){
+  asset.range=range;$$('#chart-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.range===range));
+  const symbol=asset.symbol;
+  try{const d=await api(`/markets/instruments/${encodeURIComponent(symbol)}/history?range=${range}`);if(asset.symbol!==symbol)return;const pts=d.points||[];drawChart(pts);
+    if(pts.length>1){const a=Number(pts[0].price),b=Number(pts[pts.length-1].price);const ch=(b-a)/a*100;const el=$('#chart-range');el.textContent=tf('rangeChange',{p:pct(ch)});el.className='chart-range '+tone(ch)}else $('#chart-range').textContent='';
+  }catch(e){if(asset.symbol===symbol){drawChart([]);$('#chart-range').textContent=''}}
+}
+$$('#chart-tabs button').forEach(b=>b.onclick=()=>loadRange(b.dataset.range));
+function syncStar(){const on=(inv.watch||[]).some(w=>w.symbol===asset.symbol);const s=$('#asset-star');s.textContent=on?'★':'☆';s.classList.toggle('on',on)}
+$('#asset-star').onclick=async()=>{const w=(inv.watch||[]).find(x=>x.symbol===asset.symbol);try{if(w){await api(`/watchlist/${w.id}`,{method:'DELETE'});toast(t('watchRemoved'))}else{await api('/watchlist',{method:'POST',body:JSON.stringify({symbol:asset.symbol,instrument_name:asset.name||asset.symbol,asset_type:asset.type||'Stock'})});toast(t('watchAdded'))}inv.watch=await api('/watchlist');syncStar();renderInvest()}catch(e){toast(e.message)}};
+function assetCtx(side){const p=positions().find(x=>x.symbol===asset.symbol);return {side,symbol:asset.symbol,name:asset.name||asset.info?.name||asset.symbol,type:asset.type||'Stock',currency:asset.info?.currency||p?.currency||'USD',price:asset.info?.price??p?.current_price??null}}
+$('#asset-add').onclick=()=>{const ctx=assetCtx('BUY');closeDialogs();openTrade(ctx)};
+$('#asset-sell').onclick=()=>{const ctx=assetCtx('SELL');closeDialogs();openTrade(ctx)};
+
+/* ---------- trade form ---------- */
+(()=>{const f=$('#investment-form');const c=f.cloneNode(true);f.replaceWith(c)})();
+const form=$('#investment-form');
+form.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeDialogs);
+form.querySelectorAll('select').forEach(s=>s.addEventListener('change',()=>{syncSelectFace(s);updateSummary()}));
+let lastEdited='quantity';
+const typeSelect=$('#trade-asset-type');
+function translateTypes(){[...typeSelect.options].forEach(o=>o.textContent=typeLabel(o.value));syncSelectFace(typeSelect)}
+function setSide(side){
+  field(form,'side').value=side;$$('#trade-side .tsw-btn').forEach(b=>b.classList.toggle('active',b.dataset.side===side));
+  const income=side==='INCOME';$('#trade-qty-fields').hidden=income;$('#trade-income-fields').hidden=!income;
+  $('#trade-fee-label').textContent=t(income?'tax':'fee');
+  $('#trade-submit').textContent=side==='BUY'?t('buy'):side==='SELL'?t('sell'):t('saveTrade');
+  form.amount.closest('label').hidden=side!=='BUY';
+  updateHeld();updateSummary();
+}
+$$('#trade-side .tsw-btn').forEach(b=>b.onclick=()=>setSide(b.dataset.side));
+function showAssetFields(show){$('#trade-asset-fields').hidden=!show;$('#trade-asset-chip').hidden=show}
+$('#trade-asset-change').onclick=()=>{showAssetFields(true);field(form,'symbol').focus()};
+function currentSymbol(){return field(form,'symbol').value.trim().toUpperCase()}
+function heldPosition(){return findPosition(currentSymbol(),form.currency.value)}
+function updateHeld(){
+  const side=field(form,'side').value,p=heldPosition();const box=$('#trade-held');
+  if(side==='BUY'||!p){box.hidden=true;return}
+  box.hidden=false;$('#trade-held-text').textContent=tf('youHave',{q:qtyFmt(p.quantity),a:fmt(p.average_cost,p.currency)});$('#trade-sell-all').hidden=side!=='SELL';
+}
+$('#trade-sell-all').onclick=()=>{const p=heldPosition();if(!p)return;form.quantity.value=Number(p.quantity);lastEdited='quantity';syncAmount();updateSummary()};
+function syncAmount(){const p=num(form.price.value),q=num(form.quantity.value),a=num(form.amount.value);if(lastEdited==='amount'){form.quantity.value=p>0&&a>0?+(a/p).toFixed(8):''}else{form.amount.value=p>0&&q>0?+(p*q).toFixed(2):''}}
+['price','quantity','amount'].forEach(n=>form[n].addEventListener('input',()=>{if(n!=='price')lastEdited=n;syncAmount();updateSummary()}));
+['fee','income_amount','symbol'].forEach(n=>field(form,n).addEventListener('input',()=>{updateHeld();updateSummary()}));
+function rateToAccount(cur){if(cur===acc())return 1;const r=inv.portfolio?.conversion_rates?.[cur];if(r)return Number(r);return fxCache[cur]??null}
+const fxCache={};
+async function ensureRate(cur){if(cur===acc()||rateToAccount(cur)!=null)return;try{const r=await api('/fx/convert',{method:'POST',body:JSON.stringify({base:cur,quote:acc(),amount:1})});fxCache[cur]=Number(r.rate);updateSummary()}catch{}}
+function updateSummary(){
+  const side=field(form,'side').value,cur=form.currency.value||'USD',fee=num(form.fee.value);const box=$('#trade-summary');const lines=[];
+  const rate=rateToAccount(cur);const inAcc=v=>cur!==acc()&&rate?` <small>${tf('approx',{x:fmt(v*rate,acc())})}</small>`:'';
+  if(side==='INCOME'){const a=num(form.income_amount.value);if(a>0)lines.push(`<div class="ts-main"><span>${tf('netIncome',{x:''})}</span><b class="up">+${fmt(a-fee,cur)}${inAcc(a-fee)}</b></div>`)}
+  else{const q=num(form.quantity.value),p=num(form.price.value);if(q>0&&p>0){
+    if(side==='BUY'){const total=q*p+fee;lines.push(`<div class="ts-main"><span>${t('total')}</span><b>${fmt(total,cur)}${inAcc(total)}</b></div>`);const free=Number(inv.capital?.available||0);if(rate){const need=total*rate;lines.push(need>free+0.005?`<p class="ts-warn">${tf('notEnough',{x:fmt(need-free,acc())})}</p>`:`<p class="ts-note">${tf('freeAfter',{x:fmt(free-need,acc())})}</p>`)}}
+    else{const got=q*p-fee;lines.push(`<div class="ts-main"><span>${tf('youGet',{x:''})}</span><b>${fmt(got,cur)}${inAcc(got)}</b></div>`);const h=heldPosition();if(h){const r=got-q*Number(h.average_cost);lines.push(`<p class="ts-note ${tone(r)}">${tf('expectedPnl',{x:signed(r,cur)})}</p>`)}}
+  }}
+  box.innerHTML=lines.join('');box.hidden=!lines.length;ensureRate(cur);
+}
+openTrade=function(ctx={}){
+  form.reset();clearInvestmentError();lastEdited='quantity';
+  const has=!!ctx.symbol;showAssetFields(!has);
+  field(form,'symbol').value=ctx.symbol||'';field(form,'instrument_name').value=ctx.name||'';
+  typeSelect.value=TYPE_KEYS[ctx.type]?ctx.type:'Stock';translateTypes();
+  if(has){$('#trade-ticker').outerHTML=badge(ctx.symbol).replace('<span class="tk','<span id="trade-ticker" class="tk');$('#trade-asset-symbol').textContent=ctx.symbol;$('#trade-asset-name').textContent=`${ctx.name||''} · ${typeLabel(ctx.type)}`}
+  form.currency.value=ctx.currency||'USD';if(form.currency.selectedIndex<0)form.currency.value='USD';syncSelectFace(form.currency);
+  form.price.value=ctx.price!=null?+Number(ctx.price).toFixed(6):'';form.fee.value='0';field(form,'date').value=todayISO();
+  setSide(ctx.side||'BUY');
+  if(ctx.side==='SELL'){const p=heldPosition();if(p){form.quantity.value=Number(p.quantity);syncAmount()}}
+  updateSummary();openDialog('investment-dialog');
+};
+window.openTrade=openTrade;
+$('#trade-new').onclick=()=>openTrade({});
+form.currency.addEventListener('change',()=>{updateHeld();updateSummary()});
+form.addEventListener('submit',async e=>{
+  e.preventDefault();clearInvestmentError();
+  const side=field(form,'side').value,symbol=currentSymbol(),name=field(form,'instrument_name').value.trim()||symbol,cur=form.currency.value;
+  let quantity=num(form.quantity.value),price=num(form.price.value);const fee=num(form.fee.value);
+  if(side==='INCOME'){price=num(form.income_amount.value);quantity=1;if(!symbol){showErr(t('errFields'));return}if(!(price>0)){showErr(t('errIncome'));return}if(fee>=price){showErr(t('errTax'));return}}
+  else if(!symbol||!(price>0)||!(quantity>0)){showErr(t('errFields'));return}
+  const date=field(form,'date').value;const occurred=date&&date!==todayISO()?new Date(date+'T12:00:00').toISOString():null;
+  const body={symbol,instrument_name:name,asset_type:typeSelect.value,side,quantity,price,fee,currency:cur,occurred_at:occurred};
+  const btn=$('#trade-submit');btn.disabled=true;
+  try{await api('/investments/transactions',{method:'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await loadInvest()}
+  catch(err){showErr(friendlyError(err.message))}finally{btn.disabled=false}
+});
+function showErr(msg){const box=$('#investment-error');box.innerHTML=`<strong>${esc(msg)}</strong>`;box.hidden=false;box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake')}
+
+/* language switch re-renders the tab */
+const baseApplyLanguage=applyLanguage;
+applyLanguage=function(l){baseApplyLanguage(l);translateTypes();if(inv.portfolio&&$('#invest-view')?.classList.contains('active'))renderInvest()};
+translateTypes();
 })();
 </script>
 </body>
