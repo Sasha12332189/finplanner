@@ -1370,6 +1370,31 @@ body.keyboard-open .bottom-nav{transition:none!important}
   -webkit-backdrop-filter:none!important;
 }
 :root:not([data-theme="dark"]) .topbar .brand{background:transparent!important;box-shadow:none!important;}
+
+/* v24 layout fixes */
+/* Lists are grids: an auto track grows to the longest title and pushes amounts off-screen. */
+.activity-list,.goal-stack,.position-list,.trade-history,.search-results{grid-template-columns:minmax(0,1fr)!important}
+.activity{min-width:0;max-width:100%}
+.activity .copy{flex:1 1 0;min-width:0}
+.activity .copy strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.activity .copy span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.activity .amount{flex:0 0 auto;white-space:nowrap}
+.activity .row-more,.activity .icon{flex:0 0 auto}
+.goal-head{gap:10px}.goal-name{min-width:0;overflow-wrap:anywhere}.goal-percent{flex:0 0 auto}
+
+/* Investment capital card: stack the transfer button under the figures so nothing is squeezed. */
+.investment-capital-card{grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+.capital-card-head{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 10px}
+.capital-badge{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.capital-card-bottom{display:flex!important;justify-content:space-between;align-items:baseline;gap:10px}
+.capital-transfer{width:100%!important;min-width:0!important;grid-template-columns:auto auto!important;justify-content:center;column-gap:8px;padding:12px 14px!important}
+
+/* Currency converter: line the swap button up with the selects (labels keep a 13px bottom margin). */
+.exchange-grid{align-items:end!important}
+.swap-button{height:50px!important;margin-bottom:11px!important;align-self:end}
+
+/* Sheets: keep the last button clear of the rounded bottom edge and the home indicator. */
+.sheet{padding-bottom:calc(22px + var(--safe-bottom))!important}
 </style>
 </head>
 <body>
