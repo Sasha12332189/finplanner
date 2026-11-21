@@ -8,7 +8,13 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
-from aiogram.types import MenuButtonWebApp, Message, ReplyKeyboardRemove, WebAppInfo
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    MenuButtonWebApp,
+    Message,
+    WebAppInfo,
+)
 from sqlalchemy import select
 
 from .config import get_settings
@@ -19,6 +25,9 @@ from .services import ensure_user, monthly_totals, parse_expense_message
 
 router = Router()
 
+dispatcher = Dispatcher()
+dispatcher.include_router(router)
+
 
 def money(value: Decimal, currency: str) -> str:
     return f"{Decimal(value):,.2f} {currency}".replace(",", " ")
@@ -26,6 +35,16 @@ def money(value: Decimal, currency: str) -> str:
 
 def app_url() -> str:
     return get_settings().public_app_url.rstrip("/")
+
+
+def open_app_keyboard() -> InlineKeyboardMarkup | None:
+    """Inline button that opens the Mini App at the exact current PUBLIC_APP_URL."""
+    url = app_url()
+    if not url.startswith("https://"):
+        return None
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text="Открыть finplan", web_app=WebAppInfo(url=url))]]
+    )
 
 
 
@@ -68,29 +87,33 @@ async def configure_commands(bot: Bot) -> None:
 
 @router.message(CommandStart())
 async def start(message: Message) -> None:
-    await bot_user(message)
+    try:
+        await bot_user(message)
+    except Exception:
+        # A database hiccup must not leave /start without an answer.
+        logging.exception("Failed to register user on /start")
     text = (
         "<b>Привет! Это finplan.</b>\n\n"
         "Деньги без шума — простой способ держать личные финансы под контролем.\n\n"
         "Здесь ты можешь записывать расходы и доходы, следить за бюджетом, "
         "создавать финансовые цели и управлять инвестиционным портфелем. "
         "В Mini App также доступны поиск активов и watchlist.\n\n"
-        "Открывай приложение через синюю кнопку <b>finplan</b> внизу чата. "
+        "Открывай приложение кнопкой ниже или синей кнопкой <b>finplan</b> внизу чата. "
         "А быстрые расходы можно записывать прямо сообщением, например: "
         "<code>120 coffee</code>."
     )
-    await message.answer(text, reply_markup=ReplyKeyboardRemove())
+    await message.answer(text, reply_markup=open_app_keyboard())
 
 
 @router.message(Command("app"))
 async def open_app(message: Message) -> None:
-    url = app_url()
-    if url.startswith("https://"):
-        await message.answer("Открывай Mini App через синюю кнопку <b>finplan</b> внизу чата.")
+    keyboard = open_app_keyboard()
+    if keyboard is not None:
+        await message.answer("Нажми, чтобы открыть Mini App:", reply_markup=keyboard)
     else:
         await message.answer(
             "Mini App пока не получил публичный HTTPS-адрес. "
-            "Запусти START_FINPLAN.bat — он настроит туннель автоматически."
+            "Проверь переменную PUBLIC_APP_URL в Railway."
         )
 
 
@@ -156,10 +179,9 @@ async def portfolio(message: Message) -> None:
                 )
             ).all()
         )
-
-    hidden_rows = list((await session.scalars(
-        select(InvestmentPositionState).where(InvestmentPositionState.user_id == user.id, InvestmentPositionState.hidden.is_(True))
-    )).all())
+        hidden_rows = list((await session.scalars(
+            select(InvestmentPositionState).where(InvestmentPositionState.user_id == user.id, InvestmentPositionState.hidden.is_(True))
+        )).all())
     hidden_keys = {(row.symbol.upper(), row.currency.upper()) for row in hidden_rows}
     positions = [position for position in build_positions(trades) if position.quantity > 0 and (position.symbol.upper(), position.currency.upper()) not in hidden_keys]
     if not positions:
@@ -220,45 +242,14 @@ async def main() -> None:
     )
     await configure_commands(bot)
 
-    dispatcher = Dispatcher()
-    dispatcher.include_router(router)
-
-    logging.info("finplan bot started")
+    # Polling is for local runs only. getUpdates does not work while a webhook is set,
+    # so drop it here; the Railway server sets it again on its next start.
+    await bot.delete_webhook(drop_pending_updates=False)
+    logging.info("finplan bot started (polling)")
     await dispatcher.start_polling(bot)
-
-
-async def run_railway() -> None:
-    """Run both the HTTP app and Telegram polling when Railway invokes bot.py directly."""
-    import os
-    import uvicorn
-
-    port = int(os.getenv("PORT", "8000"))
-
-    async def run_bot_safe() -> None:
-        try:
-            await main()
-        except asyncio.CancelledError:
-            raise
-        except Exception:
-            logging.exception("Telegram bot stopped with an error; web server will remain running")
-
-    config = uvicorn.Config(
-        "app.main:app",
-        host="0.0.0.0",
-        port=port,
-        log_level="info",
-        access_log=True,
-    )
-    server = uvicorn.Server(config)
-    bot_task = asyncio.create_task(run_bot_safe(), name="telegram-bot")
-    try:
-        logging.info("Starting FinPlan web server on 0.0.0.0:%s", port)
-        await server.serve()
-    finally:
-        bot_task.cancel()
-        await asyncio.gather(bot_task, return_exceptions=True)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(run_railway())
+    asyncio.run(main())
+

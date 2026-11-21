@@ -1,17 +1,25 @@
 from __future__ import annotations
 
+import hashlib
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import get_current_user
+from .bot import bot_user, configure_commands, dispatcher
+from aiogram import Bot
+from aiogram.types import Update
+from .config import get_settings
 from .database import SessionLocal, close_database, init_database
 from .market_data import FinnhubClient, MarketDataUnavailable
 from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction, User, WatchlistItem
@@ -23,11 +31,64 @@ ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
 
 
+telegram_bot: Bot | None = None
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    """Start the HTTP app first; Telegram configuration must never block it."""
+    global telegram_bot
+    import asyncio
+    import logging
+
     await init_database()
-    yield
-    await close_database()
+    settings = get_settings()
+
+    async def setup_telegram() -> None:
+        global telegram_bot
+        if not settings.bot_token or not settings.public_app_url.startswith("https://"):
+            logging.warning("Telegram webhook disabled: BOT_TOKEN/PUBLIC_APP_URL is missing or invalid")
+            return
+
+        bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        telegram_bot = bot
+        webhook_url = settings.public_app_url.rstrip("/") + "/telegram/webhook"
+
+        # Webhook is the critical part. Configure it first so a failure in
+        # optional Telegram UI configuration cannot prevent /start from working.
+        try:
+            await bot.set_webhook(
+                webhook_url,
+                secret_token=webhook_secret(settings.bot_token),
+                allowed_updates=dispatcher.resolve_used_update_types(),
+                drop_pending_updates=False,
+            )
+            logging.info("Telegram webhook set: %s", webhook_url)
+        except Exception:
+            logging.exception("Failed to set Telegram webhook")
+            return
+
+        try:
+            await configure_commands(bot)
+            logging.info("Telegram commands/menu configured")
+        except Exception:
+            logging.exception("Telegram commands/menu configuration failed; webhook remains active")
+
+    # Do not await Telegram API setup before serving HTTP.
+    asyncio.create_task(setup_telegram())
+
+    try:
+        yield
+    finally:
+        if telegram_bot is not None:
+            # Never delete the webhook here. On a Railway redeploy the new container
+            # sets the webhook first and the old one shuts down afterwards; deleting it
+            # on shutdown left the bot silent (no reply to /start) until the next deploy.
+            try:
+                await telegram_bot.session.close()
+            finally:
+                telegram_bot = None
+        await close_database()
 
 
 app = FastAPI(title="finplan", version="2.0.0", lifespan=lifespan)
@@ -57,9 +118,34 @@ async def owned_user(
     return await session.merge(user)
 
 
+def webhook_secret(bot_token: str) -> str:
+    """Stable secret derived from the token, so Telegram's calls can be told apart from strangers'."""
+    return hashlib.sha256(("finplan-webhook:" + bot_token).encode()).hexdigest()
+
+
+@app.post("/telegram/webhook")
+async def telegram_webhook(
+    request: Request,
+    x_telegram_bot_api_secret_token: str | None = Header(default=None),
+) -> dict[str, bool]:
+    if telegram_bot is None:
+        raise HTTPException(status_code=503, detail="Telegram bot is not configured")
+    if x_telegram_bot_api_secret_token != webhook_secret(get_settings().bot_token):
+        raise HTTPException(status_code=403, detail="Invalid webhook secret")
+    try:
+        payload = await request.json()
+        update = Update.model_validate(payload, context={"bot": telegram_bot})
+        await dispatcher.feed_update(telegram_bot, update)
+    except Exception:
+        # Answer 200 anyway: a 5xx makes Telegram retry the same update forever
+        # and hold back every newer message (including /start) behind it.
+        logging.exception("Failed to handle Telegram update")
+    return {"ok": True}
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "ok", "telegram": "configured" if telegram_bot is not None else "not_configured"}
 
 
 @app.get("/")
