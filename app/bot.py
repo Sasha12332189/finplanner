@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from decimal import Decimal
 
 from aiogram import Bot, Dispatcher, F, Router
@@ -75,7 +76,10 @@ async def configure_commands(bot: Bot) -> None:
     # This must use the exact public HTTPS URL from PUBLIC_APP_URL.
     url = settings.public_app_url.rstrip("/")
     if not url.startswith("https://"):
-        raise RuntimeError("PUBLIC_APP_URL must be a valid HTTPS URL on Railway")
+        # Do not crash the service over this: the bot still answers, only the
+        # blue Menu button is left as it is until PUBLIC_APP_URL is fixed.
+        logging.warning("PUBLIC_APP_URL is not an HTTPS URL (%r); Menu button not updated", url)
+        return
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="finplan",
@@ -249,7 +253,23 @@ async def main() -> None:
     await dispatcher.start_polling(bot)
 
 
-if __name__ == "__main__":
+def run() -> None:
+    """Entry point for `python -m app.bot`.
+
+    On Railway (PORT is set) this starts the full web server: the Mini App plus
+    the bot webhook, same as start_railway.py. Polling is only for local runs.
+    """
     logging.basicConfig(level=logging.INFO)
-    asyncio.run(main())
+    if os.getenv("PORT") or os.getenv("RAILWAY_ENVIRONMENT"):
+        import uvicorn
+
+        port = int(os.getenv("PORT", "8000"))
+        logging.info("Starting FinPlan web server on 0.0.0.0:%s", port)
+        uvicorn.run("app.main:app", host="0.0.0.0", port=port, log_level="info", access_log=True)
+    else:
+        asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()
 
