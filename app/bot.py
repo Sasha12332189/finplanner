@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import html
 import logging
 import os
 from decimal import Decimal
@@ -10,6 +11,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (
+    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     MenuButtonWebApp,
@@ -20,14 +22,27 @@ from sqlalchemy import select
 
 from .config import get_settings
 from .database import SessionLocal, init_database
-from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction
+from .finance import apply_due_recurring, category_name, local_today, month_summary_text, total_balance
+from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction, User
 from .portfolio import build_positions
-from .services import ensure_user, monthly_totals, parse_expense_message
+from .services import ensure_user, parse_expense_message
 
 router = Router()
 
 dispatcher = Dispatcher()
 dispatcher.include_router(router)
+
+
+BOT_WORDS = {
+    "ru": {"saved": "Записал", "undo": "Отменить", "undone": "Отменено", "gone": "Уже удалено",
+           "balance": "Баланс", "empty": "В этом месяце операций пока нет."},
+    "uk": {"saved": "Записав", "undo": "Скасувати", "undone": "Скасовано", "gone": "Вже видалено",
+           "balance": "Баланс", "empty": "Цього місяця операцій поки немає."},
+}
+
+
+def bot_language(language: str | None) -> str:
+    return "uk" if language == "uk" else "ru"
 
 
 def money(value: Decimal, currency: str) -> str:
@@ -135,19 +150,16 @@ async def summary(message: Message) -> None:
         user = await ensure_user(
             session, message.from_user.id, message.from_user.first_name, message.from_user.username
         )
-        income, expenses = await monthly_totals(session, user.id)
-        balance = Decimal(user.opening_balance or 0) + income - expenses
-        budget = (
-            f"\nОсталось бюджета: <b>{money(Decimal(user.monthly_budget) - expenses, user.currency)}</b>"
-            if user.monthly_budget is not None
-            else ""
-        )
-        await message.answer(
-            f"<b>Этот месяц</b>\n"
-            f"Доходы: {money(income, user.currency)}\n"
-            f"Расходы: {money(expenses, user.currency)}\n"
-            f"Баланс: <b>{money(balance, user.currency)}</b>{budget}"
-        )
+        await apply_due_recurring(session, user.id)
+        await session.commit()
+        today = local_today()
+        text = await month_summary_text(session, user, today.year, today.month)
+        balance = await total_balance(session, user) - Decimal(user.investment_capital or 0)
+        currency = user.currency
+        words = BOT_WORDS[bot_language(user.language)]
+    if not text:
+        text = words["empty"]
+    await message.answer(f"{text}\n\n{words['balance']}: <b>{money(balance, currency)}</b>")
 
 
 @router.message(Command("goal"))
@@ -225,21 +237,58 @@ async def quick_expense(message: Message) -> None:
         user = await ensure_user(
             session, message.from_user.id, message.from_user.first_name, message.from_user.username
         )
-        session.add(
-            Transaction(
-                user_id=user.id,
-                kind=kind,
-                amount=amount,
-                note=note,
-                category=category,
-            )
+        row = Transaction(
+            user_id=user.id,
+            kind=kind,
+            amount=amount,
+            note=note,
+            category=category,
         )
+        session.add(row)
         await session.commit()
         currency = user.currency
+        language = user.language
+        row_id = row.id
 
-    await message.answer(
-        f"Записал <b>{money(amount, currency)}</b>\n{category} · {note}"
+    words = BOT_WORDS[bot_language(language)]
+    sign = "+" if kind == "income" else "−"
+    undo = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=words["undo"], callback_data=f"undo:{row_id}")]]
     )
+    await message.answer(
+        f"{words['saved']} <b>{sign}{money(amount, currency)}</b>\n"
+        f"{category_name(category, language)} · {html.escape(note)}",
+        reply_markup=undo,
+    )
+
+
+@router.callback_query(F.data.startswith("undo:"))
+async def undo_quick_entry(callback: CallbackQuery) -> None:
+    try:
+        row_id = int(callback.data.split(":", 1)[1])
+    except ValueError:
+        await callback.answer()
+        return
+    async with SessionLocal() as session:
+        user = await session.scalar(select(User).where(User.telegram_id == callback.from_user.id))
+        words = BOT_WORDS[bot_language(user.language if user else None)]
+        row = None
+        if user is not None:
+            row = await session.scalar(
+                select(Transaction).where(Transaction.id == row_id, Transaction.user_id == user.id)
+            )
+        if row is not None:
+            await session.delete(row)
+            await session.commit()
+    if row is None:
+        await callback.answer(words["gone"])
+        return
+    await callback.answer(words["undone"])
+    if callback.message is not None:
+        try:
+            await callback.message.edit_text("<s>" + (callback.message.html_text or "") + "</s>\n" + words["undone"] + ".")
+        except Exception:
+            logging.exception("Failed to mark the entry as undone")
 
 
 async def main() -> None:

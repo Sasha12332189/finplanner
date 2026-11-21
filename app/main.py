@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import re
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -22,9 +23,35 @@ from aiogram.types import Update
 from .config import get_settings
 from .database import SessionLocal, close_database, init_database
 from .market_data import FinnhubClient, MarketDataUnavailable
-from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction, User, WatchlistItem
+import asyncio
+
+from .finance import (
+    LOCAL_TZ,
+    month_summary_text,
+    shift_month,
+    account_balances,
+    analytics,
+    apply_due_recurring,
+    first_month_to_skip,
+    owned_account_id,
+    total_balance,
+)
+from .models import Account, CategoryBudget, Goal, InvestmentPositionState, InvestmentTransaction, RecurringPayment, Transaction, User, WatchlistItem
 from .portfolio import build_positions, totals_by_currency
-from .schemas import FXConvertCreate, GoalCreate, InvestmentCapitalTransfer, InvestmentTransactionCreate, TransactionCreate, UserSettingsUpdate, WatchlistCreate
+from .schemas import (
+    AccountCreate,
+    CategoryBudgetSet,
+    FXConvertCreate,
+    GoalCreate,
+    GoalUpdate,
+    InvestmentCapitalTransfer,
+    InvestmentTransactionCreate,
+    RecurringCreate,
+    TransactionCreate,
+    TransferCreate,
+    UserSettingsUpdate,
+    WatchlistCreate,
+)
 from .services import monthly_totals
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -76,10 +103,12 @@ async def lifespan(_: FastAPI):
 
     # Do not await Telegram API setup before serving HTTP.
     asyncio.create_task(setup_telegram())
+    jobs = asyncio.create_task(background_jobs())
 
     try:
         yield
     finally:
+        jobs.cancel()
         if telegram_bot is not None:
             # Never delete the webhook here. On a Railway redeploy the new container
             # sets the webhook first and the old one shuts down afterwards; deleting it
@@ -89,6 +118,49 @@ async def lifespan(_: FastAPI):
             finally:
                 telegram_bot = None
         await close_database()
+
+
+SUMMARY_HOUR = 10  # local time on the 1st of the month
+
+
+async def run_background_once(now: datetime | None = None) -> None:
+    """Record due recurring payments for everyone and send last month's summaries."""
+    local_now = (now or datetime.now(timezone.utc)).astimezone(LOCAL_TZ)
+    today = local_now.date()
+    prev_year, prev_month = shift_month(today.year, today.month, -1)
+    prev_key = f"{prev_year:04d}-{prev_month:02d}"
+    async with SessionLocal() as session:
+        users = list((await session.scalars(select(User))).all())
+        for user in users:
+            await apply_due_recurring(session, user.id, today)
+            if user.last_summary_month is None:
+                # First run after this feature shipped: start with the next month,
+                # do not send everyone a summary of an old month at once.
+                user.last_summary_month = prev_key
+                continue
+            if user.last_summary_month >= prev_key or local_now.hour < SUMMARY_HOUR and today.day == 1:
+                continue
+            text = await month_summary_text(session, user, prev_year, prev_month)
+            if text and telegram_bot is not None:
+                try:
+                    await telegram_bot.send_message(user.telegram_id, text)
+                except Exception:
+                    logging.exception("Failed to send monthly summary to user %s", user.id)
+                    continue
+            user.last_summary_month = prev_key
+        await session.commit()
+
+
+async def background_jobs() -> None:
+    await asyncio.sleep(20)  # let the webhook and bot come up first
+    while True:
+        try:
+            await run_background_once()
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logging.exception("Background job failed")
+        await asyncio.sleep(30 * 60)
 
 
 app = FastAPI(title="finplan", version="2.0.0", lifespan=lifespan)
@@ -194,12 +266,12 @@ async def dashboard(
     user: User = Depends(owned_user),
     session: AsyncSession = Depends(db_session),
 ) -> dict:
+    if await apply_due_recurring(session, user.id):
+        await session.commit()
     income, expenses = await monthly_totals(session, user.id)
-    all_rows = list((await session.scalars(select(Transaction).where(Transaction.user_id == user.id))).all())
-    all_income = sum((Decimal(row.amount) for row in all_rows if row.kind == "income"), Decimal("0"))
-    all_expenses = sum((Decimal(row.amount) for row in all_rows if row.kind == "expense"), Decimal("0"))
-    raw_account_balance = Decimal(user.opening_balance or 0) + all_income - all_expenses
-    account_balance = raw_account_balance - Decimal(user.investment_capital or 0)
+    accounts = await account_balances(session, user)
+    raw_balance = sum((a["balance"] for a in accounts), Decimal("0"))
+    account_balance = raw_balance - Decimal(user.investment_capital or 0)
     goals = list((await session.scalars(select(Goal).where(Goal.user_id == user.id).order_by(Goal.created_at.desc()))).all())
     budget_left = Decimal(user.monthly_budget) - expenses if user.monthly_budget is not None else None
     return {
@@ -207,6 +279,7 @@ async def dashboard(
         "income": income,
         "expenses": expenses,
         "balance": account_balance,
+        "accounts": accounts,
         "opening_balance": user.opening_balance,
         "budget_left": budget_left,
         "goals": [
@@ -218,17 +291,170 @@ async def dashboard(
 
 @app.get("/api/transactions")
 async def transactions(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> list[dict]:
-    rows = list((await session.scalars(select(Transaction).where(Transaction.user_id == user.id).order_by(Transaction.occurred_at.desc()).limit(200))).all())
-    return [{"id": r.id, "kind": r.kind, "amount": r.amount, "category": r.category, "note": r.note, "occurred_at": r.occurred_at} for r in rows]
+    rows = list((await session.scalars(select(Transaction).where(Transaction.user_id == user.id).order_by(Transaction.occurred_at.desc(), Transaction.id.desc()).limit(300))).all())
+    return [{"id": r.id, "kind": r.kind, "amount": r.amount, "category": r.category, "note": r.note, "account_id": r.account_id, "occurred_at": as_utc(r.occurred_at)} for r in rows]
+
+
+def as_utc(value: datetime | None) -> datetime | None:
+    """SQLite returns naive datetimes; they are stored in UTC."""
+    if value is None:
+        return None
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+
+
+async def checked_account(session: AsyncSession, user: User, account_id: int | None) -> int | None:
+    try:
+        return await owned_account_id(session, user, account_id)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
 
 
 @app.post("/api/transactions", status_code=201)
 async def create_transaction(payload: TransactionCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
-    row = Transaction(user_id=user.id, kind=payload.kind, amount=payload.amount, category=payload.category, note=payload.note, occurred_at=payload.occurred_at or datetime.now(timezone.utc))
+    account_id = await checked_account(session, user, payload.account_id)
+    row = Transaction(user_id=user.id, kind=payload.kind, amount=payload.amount, category=payload.category, note=payload.note, account_id=account_id, occurred_at=as_utc(payload.occurred_at) or datetime.now(timezone.utc))
     session.add(row)
     await session.commit()
     await session.refresh(row)
     return {"id": row.id}
+
+
+@app.patch("/api/transactions/{transaction_id}")
+async def update_transaction(transaction_id: int, payload: TransactionCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    row = await session.scalar(select(Transaction).where(Transaction.id == transaction_id, Transaction.user_id == user.id))
+    if not row:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    if row.kind not in ("expense", "income"):
+        raise HTTPException(status_code=400, detail="Transfers cannot be edited; delete and create a new one")
+    row.kind = payload.kind
+    row.amount = payload.amount
+    row.category = payload.category
+    row.note = payload.note
+    row.account_id = await checked_account(session, user, payload.account_id)
+    if payload.occurred_at is not None:
+        row.occurred_at = as_utc(payload.occurred_at)
+    await session.commit()
+    return {"ok": True}
+
+
+# ---------- accounts ----------
+
+@app.get("/api/accounts")
+async def accounts(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> list[dict]:
+    return await account_balances(session, user)
+
+
+@app.post("/api/accounts", status_code=201)
+async def create_account(payload: AccountCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    count = len((await session.scalars(select(Account.id).where(Account.user_id == user.id))).all())
+    if count >= 10:
+        raise HTTPException(status_code=400, detail="Too many accounts")
+    account = Account(user_id=user.id, name=payload.name.strip(), opening_balance=payload.opening_balance)
+    session.add(account)
+    await session.commit()
+    await session.refresh(account)
+    return {"id": account.id}
+
+
+@app.patch("/api/accounts/{account_id}")
+async def update_account(account_id: int, payload: AccountCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    account = await session.scalar(select(Account).where(Account.id == account_id, Account.user_id == user.id))
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    account.name = payload.name.strip()
+    account.opening_balance = payload.opening_balance
+    await session.commit()
+    return {"ok": True}
+
+
+@app.delete("/api/accounts/{account_id}")
+async def delete_account(account_id: int, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    """Operations of a deleted account move to the main account; its starting balance is dropped."""
+    account = await session.scalar(select(Account).where(Account.id == account_id, Account.user_id == user.id))
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    for row in (await session.scalars(select(Transaction).where(Transaction.user_id == user.id, Transaction.account_id == account_id))).all():
+        row.account_id = None
+    for item in (await session.scalars(select(RecurringPayment).where(RecurringPayment.user_id == user.id, RecurringPayment.account_id == account_id))).all():
+        item.account_id = None
+    await session.delete(account)
+    await session.commit()
+    return {"ok": True}
+
+
+@app.post("/api/accounts/transfer", status_code=201)
+async def transfer_between_accounts(payload: TransferCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    source = await checked_account(session, user, payload.from_account_id)
+    target = await checked_account(session, user, payload.to_account_id)
+    if source == target:
+        raise HTTPException(status_code=400, detail="Choose two different accounts")
+    now = datetime.now(timezone.utc)
+    note = (payload.note or "").strip() or None
+    session.add(Transaction(user_id=user.id, kind="transfer_out", amount=payload.amount, category="Transfer", note=note, account_id=source, occurred_at=now))
+    session.add(Transaction(user_id=user.id, kind="transfer_in", amount=payload.amount, category="Transfer", note=note, account_id=target, occurred_at=now))
+    await session.commit()
+    return {"ok": True}
+
+
+# ---------- analytics & category limits ----------
+
+@app.get("/api/analytics")
+async def analytics_view(month: str | None = None, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    if month is not None and not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", month):
+        raise HTTPException(status_code=400, detail="month must look like 2026-11")
+    return await analytics(session, user, month)
+
+
+@app.put("/api/budgets/{category}")
+async def set_category_budget(category: str, payload: CategoryBudgetSet, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    category = category.strip()[:64] or "Other"
+    budget = await session.scalar(select(CategoryBudget).where(CategoryBudget.user_id == user.id, CategoryBudget.category == category))
+    if not payload.limit_amount:
+        if budget:
+            await session.delete(budget)
+    elif budget:
+        budget.limit_amount = payload.limit_amount
+    else:
+        session.add(CategoryBudget(user_id=user.id, category=category, limit_amount=payload.limit_amount))
+    await session.commit()
+    return {"ok": True}
+
+
+# ---------- recurring payments ----------
+
+@app.get("/api/recurring")
+async def recurring(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> list[dict]:
+    rows = list((await session.scalars(select(RecurringPayment).where(RecurringPayment.user_id == user.id).order_by(RecurringPayment.day_of_month, RecurringPayment.id))).all())
+    return [
+        {"id": r.id, "kind": r.kind, "amount": r.amount, "category": r.category, "note": r.note,
+         "account_id": r.account_id, "day_of_month": r.day_of_month, "last_applied_month": r.last_applied_month}
+        for r in rows
+    ]
+
+
+@app.post("/api/recurring", status_code=201)
+async def create_recurring(payload: RecurringCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    account_id = await checked_account(session, user, payload.account_id)
+    item = RecurringPayment(
+        user_id=user.id, kind=payload.kind, amount=payload.amount, category=payload.category,
+        note=(payload.note or "").strip() or None, account_id=account_id, day_of_month=payload.day_of_month,
+        last_applied_month=first_month_to_skip(payload.day_of_month),
+    )
+    session.add(item)
+    await session.flush()
+    await apply_due_recurring(session, user.id)
+    await session.commit()
+    return {"id": item.id}
+
+
+@app.delete("/api/recurring/{item_id}")
+async def delete_recurring(item_id: int, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    item = await session.scalar(select(RecurringPayment).where(RecurringPayment.id == item_id, RecurringPayment.user_id == user.id))
+    if not item:
+        raise HTTPException(status_code=404, detail="Recurring payment not found")
+    await session.delete(item)
+    await session.commit()
+    return {"ok": True}
 
 
 @app.delete("/api/transactions/{transaction_id}")
@@ -257,13 +483,27 @@ async def create_goal(payload: GoalCreate, user: User = Depends(owned_user), ses
 
 
 @app.patch("/api/goals/{goal_id}")
-async def update_goal(goal_id: int, saved_amount: Decimal, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+async def update_goal(
+    goal_id: int,
+    payload: GoalUpdate | None = None,
+    saved_amount: Decimal | None = None,
+    user: User = Depends(owned_user),
+    session: AsyncSession = Depends(db_session),
+) -> dict:
+    """Accepts a JSON body; the old `?saved_amount=` query form still works."""
     goal = await session.scalar(select(Goal).where(Goal.id == goal_id, Goal.user_id == user.id))
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
-    if saved_amount < 0:
-        raise HTTPException(status_code=400, detail="Saved amount cannot be negative")
-    goal.saved_amount = saved_amount
+    payload = payload or GoalUpdate()
+    new_saved = payload.saved_amount if payload.saved_amount is not None else saved_amount
+    if new_saved is not None:
+        if new_saved < 0:
+            raise HTTPException(status_code=400, detail="Saved amount cannot be negative")
+        goal.saved_amount = new_saved
+    if payload.clear_target_date:
+        goal.target_date = None
+    elif payload.target_date is not None:
+        goal.target_date = as_utc(payload.target_date)
     await session.commit()
     return {"ok": True}
 
@@ -361,10 +601,8 @@ async def watchlist(user: User = Depends(owned_user), session: AsyncSession = De
 
 
 async def raw_account_balance(session: AsyncSession, user: User) -> Decimal:
-    rows = list((await session.scalars(select(Transaction).where(Transaction.user_id == user.id))).all())
-    income = sum((Decimal(row.amount) for row in rows if row.kind == "income"), Decimal("0"))
-    expenses = sum((Decimal(row.amount) for row in rows if row.kind == "expense"), Decimal("0"))
-    return Decimal(user.opening_balance or 0) + income - expenses
+    """All accounts together, before money set aside for investing."""
+    return await total_balance(session, user)
 
 
 async def investment_cash_flow(session: AsyncSession, user: User) -> Decimal:

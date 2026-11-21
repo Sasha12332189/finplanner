@@ -18,6 +18,39 @@ class TransactionCreate(BaseModel):
     category: str = Field(default="Other", max_length=64)
     note: str | None = Field(default=None, max_length=500)
     occurred_at: datetime | None = None
+    account_id: int | None = None
+
+
+class AccountCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=60)
+    opening_balance: Decimal = Field(default=Decimal("0"), max_digits=16, decimal_places=2)
+
+
+class TransferCreate(BaseModel):
+    from_account_id: int | None = None
+    to_account_id: int | None = None
+    amount: Decimal = Field(gt=0, max_digits=16, decimal_places=2)
+    note: str | None = Field(default=None, max_length=500)
+
+
+class CategoryBudgetSet(BaseModel):
+    # None or 0 removes the limit.
+    limit_amount: Decimal | None = Field(default=None, ge=0, max_digits=16, decimal_places=2)
+
+
+class RecurringCreate(BaseModel):
+    kind: Literal["expense", "income"]
+    amount: Decimal = Field(gt=0, max_digits=16, decimal_places=2)
+    category: str = Field(default="Other", max_length=64)
+    note: str | None = Field(default=None, max_length=500)
+    account_id: int | None = None
+    day_of_month: int = Field(ge=1, le=31)
+
+
+class GoalUpdate(BaseModel):
+    saved_amount: Decimal | None = Field(default=None, ge=0, max_digits=16, decimal_places=2)
+    target_date: datetime | None = None
+    clear_target_date: bool = False
 
 
 class GoalCreate(BaseModel):

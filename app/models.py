@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .database import Base
@@ -26,10 +26,16 @@ class User(Base):
     monthly_budget: Mapped[Decimal | None] = mapped_column(Numeric(16, 2), nullable=True)
     opening_balance: Mapped[Decimal] = mapped_column(Numeric(16, 2), default=Decimal("0"))
     investment_capital: Mapped[Decimal] = mapped_column(Numeric(16, 2), default=Decimal("0"))
+    # "YYYY-MM" of the last month whose summary the bot has sent.
+    last_summary_month: Mapped[str | None] = mapped_column(String(7), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class Transaction(Base):
+    """A money movement. kind: expense | income | transfer_out | transfer_in.
+
+    account_id is None for the main account (the user's opening_balance).
+    """
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -38,7 +44,46 @@ class Transaction(Base):
     amount: Mapped[Decimal] = mapped_column(Numeric(16, 2))
     category: Mapped[str] = mapped_column(String(64), default="Other")
     note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    account_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Account(Base):
+    """An extra wallet (cash, savings, a second card). The main account is implicit."""
+    __tablename__ = "accounts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    name: Mapped[str] = mapped_column(String(60))
+    opening_balance: Mapped[Decimal] = mapped_column(Numeric(16, 2), default=Decimal("0"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class CategoryBudget(Base):
+    __tablename__ = "category_budgets"
+    __table_args__ = (UniqueConstraint("user_id", "category", name="uq_category_budget"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    category: Mapped[str] = mapped_column(String(64))
+    limit_amount: Mapped[Decimal] = mapped_column(Numeric(16, 2))
+
+
+class RecurringPayment(Base):
+    """Rent, subscriptions, salary: added automatically once a month on day_of_month."""
+    __tablename__ = "recurring_payments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(16))
+    amount: Mapped[Decimal] = mapped_column(Numeric(16, 2))
+    category: Mapped[str] = mapped_column(String(64), default="Other")
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    account_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    day_of_month: Mapped[int] = mapped_column(Integer)
+    # "YYYY-MM" of the last month this payment was recorded.
+    last_applied_month: Mapped[str | None] = mapped_column(String(7), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
