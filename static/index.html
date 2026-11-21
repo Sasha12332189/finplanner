@@ -2187,6 +2187,25 @@ $$('#recurring-kind .segment').forEach(b=>b.onclick=()=>setRecurringKind(b.datas
 $('#recurring-add').onclick=()=>{const f=$('#recurring-form');f.reset();setRecurringKind('expense');f.day_of_month.value=new Date().getDate();fillAccountSelect($('#recurring-account'),null);toggleAccountField(f);openDialog('recurring-dialog')};
 $('#recurring-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const amount=Number(String(f.amount.value).replace(',','.'));const day=Math.min(31,Math.max(1,parseInt(f.day_of_month.value,10)||1));if(!(amount>0)){toast(t('amount'));return}const body={kind:f.kind.value,amount,category:f.category.value||'Other',note:f.note.value.trim()||null,account_id:f.account_id.value?Number(f.account_id.value):null,day_of_month:day};try{await api('/recurring',{method:'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await loadRecurring();await loadHome()}catch(err){toast(err.message)}});
 
+/* ---------- Telegram chrome colours ----------
+   On iPhone Telegram draws its own bar under the Mini App (above the home indicator)
+   in the Telegram theme colour, which showed as a dark strip under a light app.
+   Paint that bar, the header and the background with the app's real page colour. */
+function pageColorHex(){
+  const m=getComputedStyle(document.documentElement).backgroundColor.match(/\d+(\.\d+)?/g);
+  if(!m||m.length<3||(m[3]!==undefined&&Number(m[3])===0))return document.documentElement.dataset.theme==='dark'?'#050706':'#dce5dd';
+  return '#'+m.slice(0,3).map(v=>Math.round(Number(v)).toString(16).padStart(2,'0')).join('');
+}
+function paintTelegramChrome(){
+  if(!tg)return;
+  const color=pageColorHex();
+  try{tg.setBottomBarColor?.(color)}catch{}
+  try{tg.setBackgroundColor?.(color)}catch{}
+}
+const baseApplyTheme=applyTheme;
+applyTheme=function(theme){baseApplyTheme(theme);requestAnimationFrame(paintTelegramChrome)};
+paintTelegramChrome();
+
 /* ---------- wiring into v14 ---------- */
 const baseLoadHome=loadHome;
 loadHome=async function(){await baseLoadHome();renderAccounts()};
