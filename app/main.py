@@ -619,3 +619,12 @@ async def portfolio(user: User = Depends(owned_user), session: AsyncSession = De
         total_unrealised += (row["unrealised_pnl"] or Decimal("0")) * rate
     return {"positions": valued, "totals_by_currency": totals, "account_currency": account_currency, "total_current_value": total_current, "total_cost_basis": total_cost, "total_unrealised_pnl": total_unrealised, "conversion_rates": conversion}
 
+
+# Must stay the last route. Old Menu-button / BotFather links may point at paths such as
+# /app or /webapp; open the Mini App for them instead of answering "Not Found".
+@app.get("/{path:path}", include_in_schema=False)
+async def mini_app_fallback(path: str) -> FileResponse:
+    if path.startswith(("api/", "assets/", "telegram/")):
+        raise HTTPException(status_code=404, detail="Not Found")
+    return FileResponse(STATIC / "index.html", headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"})
+

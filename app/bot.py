@@ -96,17 +96,25 @@ async def start(message: Message) -> None:
     except Exception:
         # A database hiccup must not leave /start without an answer.
         logging.exception("Failed to register user on /start")
+
+    # A Menu button set earlier for this particular chat overrides the bot-wide one,
+    # so an old URL would keep showing "Not Found". Point this chat at the current app.
+    url = app_url()
+    if url.startswith("https://"):
+        try:
+            await message.bot.set_chat_menu_button(
+                chat_id=message.chat.id,
+                menu_button=MenuButtonWebApp(text="finplan", web_app=WebAppInfo(url=url)),
+            )
+        except Exception:
+            logging.exception("Failed to reset the chat Menu button")
+
     text = (
-        "<b>Привет! Это finplan.</b>\n\n"
-        "Деньги без шума — простой способ держать личные финансы под контролем.\n\n"
-        "Здесь ты можешь записывать расходы и доходы, следить за бюджетом, "
-        "создавать финансовые цели и управлять инвестиционным портфелем. "
-        "В Mini App также доступны поиск активов и watchlist.\n\n"
-        "Открывай приложение кнопкой ниже или синей кнопкой <b>finplan</b> внизу чата. "
-        "А быстрые расходы можно записывать прямо сообщением, например: "
-        "<code>120 coffee</code>."
+        "<b>finplan</b> — учёт личных финансов.\n\n"
+        "Открой приложение кнопкой <b>finplan</b> внизу чата.\n"
+        "Расход можно записать сообщением: <code>120 такси</code>"
     )
-    await message.answer(text, reply_markup=open_app_keyboard())
+    await message.answer(text)
 
 
 @router.message(Command("app"))
