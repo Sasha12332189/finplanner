@@ -80,7 +80,8 @@ class InvestmentTransactionCreate(BaseModel):
     symbol: str = Field(min_length=1, max_length=32)
     instrument_name: str = Field(min_length=1, max_length=180)
     asset_type: str = Field(default="Stock", max_length=32)
-    side: Literal["BUY", "SELL"]
+    # INCOME = dividend / coupon: send quantity 1, price = gross amount, fee = tax withheld.
+    side: Literal["BUY", "SELL", "INCOME"]
     quantity: Decimal = Field(gt=0, max_digits=20, decimal_places=8)
     price: Decimal = Field(gt=0, max_digits=20, decimal_places=6)
     fee: Decimal = Field(default=Decimal("0"), ge=0, max_digits=16, decimal_places=2)

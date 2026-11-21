@@ -37,8 +37,9 @@ from .finance import (
     total_balance,
 )
 from .models import Account, CategoryBudget, Goal, InvestmentPositionState, InvestmentTransaction, RecurringPayment, Transaction, User, WatchlistItem
-from .portfolio import build_positions, totals_by_currency
+from .portfolio import build_positions, cash_movement, totals_by_currency
 from .schemas import (
+    CURRENCIES,
     AccountCreate,
     CategoryBudgetSet,
     FXConvertCreate,
@@ -594,10 +595,27 @@ async def delete_watchlist(item_id: int, user: User = Depends(owned_user), sessi
     return {"ok": True}
 
 
+async def safe_quote(client: FinnhubClient, symbol: str) -> dict | None:
+    try:
+        return await client.quote(symbol)
+    except MarketDataUnavailable:
+        return None
+    except Exception:
+        logging.exception("Quote failed for %s", symbol)
+        return None
+
+
 @app.get("/api/watchlist")
 async def watchlist(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> list[dict]:
     rows = list((await session.scalars(select(WatchlistItem).where(WatchlistItem.user_id == user.id).order_by(WatchlistItem.created_at.desc()))).all())
-    return [{"id": r.id, "symbol": r.symbol, "name": r.instrument_name, "type": r.asset_type} for r in rows]
+    client = FinnhubClient()
+    quotes = await asyncio.gather(*(safe_quote(client, r.symbol) for r in rows))
+    return [
+        {"id": r.id, "symbol": r.symbol, "name": r.instrument_name, "type": r.asset_type,
+         "price": q.get("price") if q else None, "currency": q.get("currency") if q else None,
+         "change_percent": q.get("change_percent") if q else None}
+        for r, q in zip(rows, quotes)
+    ]
 
 
 async def raw_account_balance(session: AsyncSession, user: User) -> Decimal:
@@ -605,24 +623,22 @@ async def raw_account_balance(session: AsyncSession, user: User) -> Decimal:
     return await total_balance(session, user)
 
 
-async def investment_cash_flow(session: AsyncSession, user: User) -> Decimal:
+async def investment_cash_flow(session: AsyncSession, user: User, trades: list[InvestmentTransaction] | None = None) -> Decimal:
     """Net investment cash movement, always converted to the user's account currency.
 
-    Positive values consume investment capital (BUY); negative values release it (SELL).
-    New trades store the converted amount so historical FX changes cannot rewrite the
-    amount that was actually committed. Older rows without account_amount are converted
-    on read as a backwards-compatible fallback.
+    Positive values consume investment capital (BUY); negative values release it
+    (SELL, dividends/coupons). New trades store the converted amount so later FX moves
+    cannot rewrite what was actually committed; older rows are converted on read.
     """
-    trades = list((await session.scalars(select(InvestmentTransaction).where(InvestmentTransaction.user_id == user.id))).all())
+    if trades is None:
+        trades = list((await session.scalars(select(InvestmentTransaction).where(InvestmentTransaction.user_id == user.id))).all())
     currency = user.currency.upper()
     net = Decimal("0")
     for trade in trades:
         if trade.account_amount is not None:
             net += Decimal(trade.account_amount)
             continue
-        gross = Decimal(trade.quantity) * Decimal(trade.price)
-        fee = Decimal(trade.fee or 0)
-        movement = gross + fee if trade.side == "BUY" else -(gross - fee)
+        movement = cash_movement(trade.side, trade.quantity, trade.price, trade.fee)
         if trade.currency.upper() != currency:
             rate = await fx_rate(trade.currency, currency)
             if rate <= 0:
@@ -672,51 +688,57 @@ async def create_investment_transaction(payload: InvestmentTransactionCreate, us
     trades = list((await session.scalars(select(InvestmentTransaction).where(InvestmentTransaction.user_id == user.id))).all())
     account_currency = user.currency.upper()
     trade_currency = payload.currency.upper()
-    gross = Decimal(payload.quantity) * Decimal(payload.price)
+    if trade_currency not in CURRENCIES:
+        raise HTTPException(status_code=400, detail="Unsupported currency")
+    quantity = Decimal("1") if payload.side == "INCOME" else Decimal(payload.quantity)
     fee = Decimal(payload.fee or 0)
-    cash_movement = gross + fee if payload.side == "BUY" else -(gross - fee)
+    if payload.side == "INCOME" and fee >= Decimal(payload.price):
+        raise HTTPException(status_code=400, detail="Tax cannot be larger than the payment")
+    movement = cash_movement(payload.side, quantity, payload.price, fee)
 
     if trade_currency != account_currency:
         rate = await fx_rate(trade_currency, account_currency)
         if rate <= 0:
             raise HTTPException(status_code=503, detail=f"Unable to get the {trade_currency}/{account_currency} exchange rate. Try again in a moment.")
-        account_amount = cash_movement * rate
+        account_amount = movement * rate
     else:
-        account_amount = cash_movement
+        account_amount = movement
 
+    trade = InvestmentTransaction(
+        user_id=user.id,
+        symbol=payload.symbol.strip().upper(),
+        instrument_name=payload.instrument_name.strip(),
+        asset_type=payload.asset_type,
+        side=payload.side,
+        quantity=quantity,
+        price=payload.price,
+        fee=fee,
+        currency=trade_currency,
+        account_amount=account_amount,
+        occurred_at=as_utc(payload.occurred_at) or datetime.now(timezone.utc),
+    )
+
+    # Replay the whole ledger with the new trade, so a back-dated sale cannot sell
+    # shares that were bought later, and income needs a known asset.
+    try:
+        build_positions(trades + [trade])
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
     if payload.side == "BUY":
         capital = Decimal(user.investment_capital or 0)
-        net_invested = await investment_cash_flow(session, user)
-        available = max(Decimal("0"), capital - net_invested)
+        available = max(Decimal("0"), capital - await investment_cash_flow(session, user, trades))
         if account_amount > available:
             raise HTTPException(
                 status_code=400,
                 detail=f"Not enough free investment capital. Available: {available.quantize(Decimal('0.01'))} {account_currency}."
             )
-    else:
-        try:
-            positions = build_positions(trades)
-        except ValueError as error:
-            raise HTTPException(status_code=400, detail=str(error)) from error
-        current = next((p for p in positions if p.symbol == payload.symbol.upper() and p.currency == trade_currency), None)
-        if current is None or payload.quantity > current.quantity:
-            available = current.quantity if current else Decimal("0")
-            raise HTTPException(status_code=400, detail=f"Not enough recorded quantity. Available: {available}")
 
-    trade_data = payload.model_dump(exclude_none=True)
-    trade_data["symbol"] = trade_data["symbol"].upper()
-    trade_data["currency"] = trade_currency
-    trade = InvestmentTransaction(
-        user_id=user.id,
-        account_amount=account_amount,
-        **trade_data,
-    )
     session.add(trade)
     if payload.side == "BUY":
         hidden_state = await session.scalar(
             select(InvestmentPositionState).where(
                 InvestmentPositionState.user_id == user.id,
-                func.upper(InvestmentPositionState.symbol) == trade_data["symbol"].upper(),
+                func.upper(InvestmentPositionState.symbol) == trade.symbol,
                 func.upper(InvestmentPositionState.currency) == trade_currency,
             )
         )
@@ -731,6 +753,12 @@ async def create_investment_transaction(payload: InvestmentTransactionCreate, us
 @app.get("/api/investments/transactions")
 async def investment_transactions(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> list[dict]:
     rows = list((await session.scalars(select(InvestmentTransaction).where(InvestmentTransaction.user_id == user.id).order_by(InvestmentTransaction.occurred_at.desc(), InvestmentTransaction.id.desc()))).all())
+    pnl: dict[int, Decimal] = {}
+    try:
+        for position in build_positions(rows):
+            pnl.update(position.trade_pnl)
+    except ValueError:
+        pass
     return [{
         "id": row.id,
         "symbol": row.symbol,
@@ -741,19 +769,31 @@ async def investment_transactions(user: User = Depends(owned_user), session: Asy
         "price": row.price,
         "fee": row.fee,
         "currency": row.currency,
-        "occurred_at": row.occurred_at,
+        "account_amount": row.account_amount,
+        "realised_pnl": pnl.get(row.id),
+        "occurred_at": as_utc(row.occurred_at),
     } for row in rows]
 
 
 @app.delete("/api/investments/transactions/{trade_id}")
 async def delete_investment_transaction(trade_id: int, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
-    """The investment ledger is immutable. Trades are permanent history records."""
-    raise HTTPException(status_code=405, detail="Investment trade history cannot be deleted")
+    """Remove a mistaken entry, unless later sales depend on it."""
+    rows = list((await session.scalars(select(InvestmentTransaction).where(InvestmentTransaction.user_id == user.id))).all())
+    trade = next((row for row in rows if row.id == trade_id), None)
+    if trade is None:
+        raise HTTPException(status_code=404, detail="Trade not found")
+    try:
+        build_positions([row for row in rows if row.id != trade_id])
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=f"This purchase is needed by a later sale. Delete the sale first. ({error})") from error
+    await session.delete(trade)
+    await session.commit()
+    return {"ok": True}
 
 
 @app.delete("/api/investments/positions/{symbol}/{currency}")
 async def delete_investment_position(symbol: str, currency: str, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
-    """Hide a derived position without touching its permanent trade history."""
+    """Hide a derived position without touching its trade history."""
     normalized_symbol = symbol.upper()
     normalized_currency = currency.upper()
     rows = list((await session.scalars(
@@ -785,28 +825,40 @@ async def delete_investment_position(symbol: str, currency: str, user: User = De
     return {"ok": True, "hidden": True}
 
 
+_FX_CACHE: dict[tuple[str, str], tuple[float, Decimal]] = {}
+
+
 async def fx_rate(base: str, quote: str) -> Decimal:
-    if base.upper() == quote.upper():
+    base, quote = base.upper(), quote.upper()
+    if base == quote:
         return Decimal("1")
+    import time as _time
+    hit = _FX_CACHE.get((base, quote))
+    if hit and _time.monotonic() - hit[0] < 600:
+        return hit[1]
+    rate = Decimal("0")
     try:
         async with __import__("httpx").AsyncClient(timeout=8, headers={"User-Agent": "finplan/1.0"}) as client:
-            response = await client.get(f"https://api.frankfurter.app/latest?from={base.upper()}&to={quote.upper()}")
+            response = await client.get(f"https://api.frankfurter.app/latest?from={base}&to={quote}")
             response.raise_for_status()
-            rate = response.json().get("rates", {}).get(quote.upper())
-            if rate is not None:
-                return Decimal(str(rate))
+            value = response.json().get("rates", {}).get(quote)
+            if value is not None:
+                rate = Decimal(str(value))
     except Exception:
         pass
-    try:
-        async with __import__("httpx").AsyncClient(timeout=8, headers={"User-Agent": "finplan/1.0"}) as client:
-            response = await client.get(f"https://open.er-api.com/v6/latest/{base.upper()}")
-            response.raise_for_status()
-            rate = response.json().get("rates", {}).get(quote.upper())
-            if rate is not None:
-                return Decimal(str(rate))
-    except Exception:
-        pass
-    return Decimal("1") if base.upper() == quote.upper() else Decimal("0")
+    if rate <= 0:
+        try:
+            async with __import__("httpx").AsyncClient(timeout=8, headers={"User-Agent": "finplan/1.0"}) as client:
+                response = await client.get(f"https://open.er-api.com/v6/latest/{base}")
+                response.raise_for_status()
+                value = response.json().get("rates", {}).get(quote)
+                if value is not None:
+                    rate = Decimal(str(value))
+        except Exception:
+            pass
+    if rate > 0:
+        _FX_CACHE[(base, quote)] = (_time.monotonic(), rate)
+    return rate
 
 
 @app.get("/api/portfolio")
@@ -820,42 +872,70 @@ async def portfolio(user: User = Depends(owned_user), session: AsyncSession = De
         select(InvestmentPositionState).where(InvestmentPositionState.user_id == user.id, InvestmentPositionState.hidden.is_(True))
     )).all())
     hidden_keys = {(row.symbol.upper(), row.currency.upper()) for row in hidden_rows}
-    positions = [p for p in positions if (p.symbol.upper(), p.currency.upper()) not in hidden_keys]
-    open_positions = [p for p in positions if p.quantity > 0]
-    valued = []
-    client = FinnhubClient()
-    for p in open_positions:
-        current_price = None
-        change_percent = None
-        try:
-            quote = await client.quote(p.symbol)
-            current_price = Decimal(str(quote.get("price"))) if quote.get("price") is not None else None
-            change_percent = quote.get("change_percent")
-        except MarketDataUnavailable:
-            pass
-        current_value = (p.quantity * current_price) if current_price is not None else None
-        unrealised = (current_value - p.cost_basis) if current_value is not None else None
-        valued.append({"symbol": p.symbol, "name": p.name, "asset_type": p.asset_type, "currency": p.currency, "quantity": p.quantity, "average_cost": p.average_cost, "cost_basis": p.cost_basis, "realised_pnl": p.realised_pnl, "current_price": current_price, "current_value": current_value, "unrealised_pnl": unrealised, "change_percent": change_percent})
-    totals = totals_by_currency(positions)
-    for row in valued:
-        bucket = totals.setdefault(row["currency"], {"cost_basis": Decimal("0"), "realised_pnl": Decimal("0")})
-        if row["current_value"] is not None:
-            bucket["current_value"] = bucket.get("current_value", Decimal("0")) + row["current_value"]
-            bucket["unrealised_pnl"] = bucket.get("unrealised_pnl", Decimal("0")) + (row["unrealised_pnl"] or Decimal("0"))
+    open_positions = [p for p in positions if p.quantity > 0 and (p.symbol, p.currency) not in hidden_keys]
 
     account_currency = user.currency.upper()
-    total_current = Decimal("0")
-    total_cost = Decimal("0")
-    total_unrealised = Decimal("0")
-    conversion = {}
+    client = FinnhubClient()
+    currencies = sorted({p.currency for p in positions})
+    quotes, rates = await asyncio.gather(
+        asyncio.gather(*(safe_quote(client, p.symbol) for p in open_positions)),
+        asyncio.gather(*(fx_rate(c, account_currency) for c in currencies)),
+    )
+    conversion = dict(zip(currencies, rates))
+
+    valued = []
+    total_current = total_cost = total_unrealised = total_day = Decimal("0")
+    missing_rates = set()
+    allocation: dict[str, Decimal] = {}
+    for p, q in zip(open_positions, quotes):
+        price = Decimal(str(q["price"])) if q and q.get("price") is not None else None
+        change_percent = q.get("change_percent") if q else None
+        value = p.quantity * price if price is not None else None
+        unrealised = value - p.cost_basis if value is not None else None
+        rate = conversion.get(p.currency) or Decimal("0")
+        if rate <= 0:
+            missing_rates.add(p.currency)
+        day_change = None
+        if value is not None and change_percent is not None:
+            pct = Decimal(str(change_percent))
+            day_change = value - value / (1 + pct / 100) if pct > -100 else None
+        value_account = (value if value is not None else p.cost_basis) * rate
+        total_current += value_account
+        total_cost += p.cost_basis * rate
+        total_unrealised += (unrealised or Decimal("0")) * rate
+        total_day += (day_change or Decimal("0")) * rate
+        allocation[p.asset_type or "Other"] = allocation.get(p.asset_type or "Other", Decimal("0")) + value_account
+        valued.append({
+            "symbol": p.symbol, "name": p.name, "asset_type": p.asset_type, "currency": p.currency,
+            "quantity": p.quantity, "average_cost": p.average_cost, "cost_basis": p.cost_basis,
+            "realised_pnl": p.realised_pnl, "income": p.income,
+            "current_price": price, "current_value": value, "unrealised_pnl": unrealised,
+            "change_percent": change_percent, "day_change": day_change,
+            "value_account": value_account, "rate": rate,
+        })
     for row in valued:
-        rate = await fx_rate(row["currency"], account_currency)
-        conversion[row["currency"]] = rate
-        if row["current_value"] is not None:
-            total_current += row["current_value"] * rate
-        total_cost += row["cost_basis"] * rate
-        total_unrealised += (row["unrealised_pnl"] or Decimal("0")) * rate
-    return {"positions": valued, "totals_by_currency": totals, "account_currency": account_currency, "total_current_value": total_current, "total_cost_basis": total_cost, "total_unrealised_pnl": total_unrealised, "conversion_rates": conversion}
+        row["weight"] = (row["value_account"] / total_current * 100) if total_current > 0 else Decimal("0")
+    valued.sort(key=lambda r: r["value_account"], reverse=True)
+
+    total_realised = sum((p.realised_pnl * (conversion.get(p.currency) or 0) for p in positions), Decimal("0"))
+    total_income = sum((p.income * (conversion.get(p.currency) or 0) for p in positions), Decimal("0"))
+    prev_value = total_current - total_day
+    return {
+        "positions": valued,
+        "totals_by_currency": totals_by_currency(positions),
+        "account_currency": account_currency,
+        "total_current_value": total_current,
+        "total_cost_basis": total_cost,
+        "total_unrealised_pnl": total_unrealised,
+        "total_unrealised_percent": (total_unrealised / total_cost * 100) if total_cost > 0 else None,
+        "total_day_change": total_day,
+        "total_day_percent": (total_day / prev_value * 100) if prev_value > 0 else None,
+        "total_realised_pnl": total_realised,
+        "total_income": total_income,
+        "allocation": [{"type": k, "value": v, "weight": (v / total_current * 100) if total_current > 0 else Decimal("0")} for k, v in sorted(allocation.items(), key=lambda kv: kv[1], reverse=True)],
+        "conversion_rates": conversion,
+        "missing_rates": sorted(missing_rates),
+    }
 
 
 # Must stay the last route. Old Menu-button / BotFather links may point at paths such as

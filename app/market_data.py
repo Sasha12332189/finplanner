@@ -12,6 +12,27 @@ class MarketDataUnavailable(Exception):
     pass
 
 
+import time
+
+# Small in-process cache: the Invest tab asks for the same quotes every minute and the
+# portfolio asks for every position at once.
+_CACHE: dict[tuple, tuple[float, Any]] = {}
+
+
+def _cache_get(key: tuple, ttl: float):
+    hit = _CACHE.get(key)
+    if hit and time.monotonic() - hit[0] < ttl:
+        return hit[1]
+    return None
+
+
+def _cache_put(key: tuple, value: Any) -> Any:
+    if len(_CACHE) > 2000:
+        _CACHE.clear()
+    _CACHE[key] = (time.monotonic(), value)
+    return value
+
+
 class MarketDataClient:
     ALIASES = {
         "BTC": "BTC-USD", "ETH": "ETH-USD", "SOL": "SOL-USD",
@@ -57,9 +78,11 @@ class MarketDataClient:
                     "symbol": symbol,
                     "name": item.get("longname") or item.get("shortname") or symbol,
                     "type": mapping.get(str(raw_type).upper(), raw_type.title() if isinstance(raw_type, str) else "Security"),
-                    "exchange": item.get("exchange") or item.get("exchDisp"),
+                    "exchange": item.get("exchDisp") or item.get("exchange"),
                 })
             merged = special + [x for x in results if x.get("symbol") not in {y.get("symbol") for y in special}]
+            # Exact ticker first, then plain tickers (main listings) before suffixed ones (AAPL.TO, APC.F).
+            merged.sort(key=lambda x: (x["symbol"].upper() != q_upper, "." in x["symbol"] or "=" in x["symbol"]))
             if merged:
                 return merged[:16]
         except MarketDataUnavailable:
@@ -78,6 +101,20 @@ class MarketDataClient:
         raise MarketDataUnavailable("No market instruments found right now")
 
     async def instrument(self, symbol: str) -> dict[str, Any]:
+        key = ("quote", symbol.strip().upper())
+        cached = _cache_get(key, 60)
+        if isinstance(cached, MarketDataUnavailable):
+            raise cached
+        if cached is not None:
+            return cached
+        try:
+            return _cache_put(key, await self._instrument(symbol))
+        except MarketDataUnavailable as error:
+            # Remember misses too (e.g. a local bond with no quote) so the portfolio stays fast.
+            _cache_put(key, error)
+            raise
+
+    async def _instrument(self, symbol: str) -> dict[str, Any]:
         display_symbol = symbol.strip().upper()
         symbol = self.provider_symbol(display_symbol)
         payload = await self._get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}", range="5d", interval="1d")
@@ -109,6 +146,13 @@ class MarketDataClient:
         }
 
     async def history(self, symbol: str, range_name: str = "1mo") -> dict[str, Any]:
+        key = ("history", symbol.strip().upper(), range_name)
+        cached = _cache_get(key, 60 if range_name in ("1d", "1w") else 600)
+        if cached is not None:
+            return cached
+        return _cache_put(key, await self._history(symbol, range_name))
+
+    async def _history(self, symbol: str, range_name: str = "1mo") -> dict[str, Any]:
         allowed = {"1d": ("1d", "15m"), "1w": ("7d", "1h"), "1mo": ("1mo", "1d"), "3mo": ("3mo", "1d"), "1y": ("1y", "1wk"), "5y": ("5y", "1mo")}
         rng, interval = allowed.get(range_name, allowed["1mo"])
         display_symbol = symbol.strip().upper()
