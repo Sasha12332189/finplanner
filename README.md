@@ -4,7 +4,11 @@ Telegram Mini App + bot for personal finance tracking.
 
 ## Railway
 
-This repository is configured to run both the FastAPI Mini App and Telegram polling bot in one Railway service.
+This repository runs the FastAPI Mini App and the Telegram bot in one Railway service. The bot receives updates through a webhook at `PUBLIC_APP_URL/telegram/webhook`, which the server sets on every start.
+
+Do not run `python -m app.bot` (polling) at the same time as the Railway service: it removes the webhook and the deployed bot stops answering until Railway restarts.
+
+The "Open" button in the bot's profile and chat list comes from BotFather, not from this code. If it opens a dead link, set it in @BotFather → /mybots → your bot → Bot Settings → Configure Mini App → Edit Mini App URL, using the same URL as `PUBLIC_APP_URL`.
 
 Set these Railway Variables:
 
@@ -13,7 +17,7 @@ Set these Railway Variables:
 - `FINNHUB_API_KEY` — optional
 - `DATABASE_URL` — optional; the default is SQLite
 
-Railway starts the service with `start_railway.py`. The process runs Uvicorn on Railway's `PORT` and the Telegram bot polling loop at the same time.
+Railway starts the service with `start_railway.py`, which runs Uvicorn on Railway's `PORT`.
 
 **Never commit `.env` or a real bot token to GitHub.**
 
