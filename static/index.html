@@ -1395,6 +1395,72 @@ body.keyboard-open .bottom-nav{transition:none!important}
 
 /* Sheets: keep the last button clear of the rounded bottom edge and the home indicator. */
 .sheet{padding-bottom:calc(22px + var(--safe-bottom))!important}
+
+/* v24: four tabs, accounts, analytics, recurring, goal plans */
+.bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.nav-item{flex-direction:column!important;gap:3px!important;min-width:0;padding:7px 2px!important}
+.nav-item b{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+.two.single,.two-actions.single{grid-template-columns:1fr!important}
+.account-field[hidden]{display:none!important}
+.head-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.head-actions [hidden]{display:none!important}
+.account-strip{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px 6px;padding:2px 16px 6px;scrollbar-width:none}
+.account-strip::-webkit-scrollbar{display:none}
+.account-card{flex:0 0 auto;min-width:138px;max-width:70%;scroll-snap-align:start;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 8px;text-align:left;padding:14px 15px;border-radius:20px;border:1px solid rgba(83,108,89,.13);background:linear-gradient(145deg,rgba(255,255,255,.70),rgba(245,247,243,.47));box-shadow:0 10px 26px rgba(41,55,46,.05),inset 0 1px 0 rgba(255,255,255,.8);color:var(--ink)}
+.account-card strong{grid-column:1/-1;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.account-dot{width:9px;height:9px;border-radius:50%}
+.account-name{font-size:12px;color:var(--muted);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-theme=dark] .account-card{background:linear-gradient(145deg,rgba(27,32,32,.66),rgba(14,18,18,.54));border-color:rgba(255,255,255,.085);box-shadow:none}
+.goal-plan{margin:10px 0 0;font-size:11px;color:var(--muted);font-weight:650}
+#goal-edit-plan:empty{display:none}
+.month-switch{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;margin:4px 0 14px}
+.month-switch h1{text-align:center;margin:0;font-size:clamp(26px,8vw,38px)}
+.month-arrow{width:44px;height:44px;border-radius:15px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:24px;line-height:1}
+.month-arrow:disabled{opacity:.3}
+.analytics-hero{display:grid;justify-items:center;gap:12px;padding:22px 18px;border-radius:28px;border:1px solid rgba(83,108,89,.13);background:linear-gradient(145deg,rgba(255,255,255,.70),rgba(245,247,243,.47));box-shadow:0 14px 36px rgba(41,55,46,.055),inset 0 1px 0 rgba(255,255,255,.82);margin-bottom:12px}
+:root[data-theme=dark] .analytics-hero{background:linear-gradient(145deg,rgba(27,32,32,.66),rgba(14,18,18,.54));border-color:rgba(255,255,255,.085);box-shadow:none}
+.donut-wrap{position:relative;width:min(220px,62vw);aspect-ratio:1}
+#donut{width:100%;height:100%;transform:rotate(-90deg)}
+.donut-track{fill:none;stroke:var(--line);stroke-width:14}
+.donut-seg{fill:none;stroke-width:14;stroke-linecap:butt;transition:stroke-dasharray .5s ease}
+.donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:2px}
+.donut-center span{font-size:11px;color:var(--muted);font-weight:700}
+.donut-center strong{font-size:clamp(18px,5.6vw,24px);letter-spacing:-.03em;max-width:150px;overflow-wrap:anywhere}
+.an-compare{margin:0;font-size:12px;font-weight:700;color:var(--muted);text-align:center}
+.an-compare:empty{display:none}
+.an-compare.up{color:var(--red)}.an-compare.down{color:var(--green2)}
+.cat-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.cat-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;width:100%;text-align:left;padding:14px 15px;border-radius:20px;border:1px solid rgba(83,108,89,.12);background:linear-gradient(145deg,rgba(255,255,255,.70),rgba(245,247,243,.47));color:var(--ink)}
+:root[data-theme=dark] .cat-row{background:linear-gradient(145deg,rgba(27,32,32,.66),rgba(14,18,18,.54));border-color:rgba(255,255,255,.085)}
+.cat-dot{width:11px;height:11px;border-radius:50%;margin-top:4px}
+.cat-main{display:grid;gap:4px;min-width:0}
+.cat-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.cat-top strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-top b{font-size:14px;white-space:nowrap}
+.cat-sub{display:flex;gap:8px;font-size:11px;color:var(--muted);font-weight:650}
+.delta.up{color:var(--red)}.delta.down{color:var(--green2)}
+.limit-line{display:grid;gap:5px;margin-top:6px}
+.limit-line small{font-size:11px;color:var(--muted);font-weight:650}
+.limit-bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.limit-bar i{display:block;height:100%;border-radius:inherit;background:var(--green2)}
+.limit-bar.over i{background:var(--red)}
+.positive{color:var(--green2)}.negative{color:var(--red)}
+.recurring-group{margin-top:14px}
+.recurring-group .settings-group-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.recurring-group .field-hint{margin:6px 2px 12px}
+.recurring-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.recurring-row{display:flex;align-items:center;gap:11px;min-width:0;padding:11px 12px;border-radius:17px;border:1px solid var(--line);background:rgba(255,255,255,.28)}
+:root[data-theme=dark] .recurring-row{background:rgba(255,255,255,.04)}
+.recurring-row .copy{flex:1 1 0;min-width:0}
+.recurring-row .copy strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recurring-row .copy span{display:block;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recurring-row .amount{flex:0 0 auto;white-space:nowrap;font-size:13px}
+.recurring-row .icon,.recurring-row .row-more{flex:0 0 auto}
+.transfer-bg{background:rgba(107,143,163,.16)!important;color:#4f6f83!important}
+.amount.transfer{color:var(--muted)!important}
+.activity[data-edit-tx]{cursor:pointer}
+#quick-categories .quick-chip.active{background:linear-gradient(145deg,#2b3a30,#1c241f)!important;color:#f3f5f1!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(28,36,31,.22)!important}
+:root[data-theme=dark] #quick-categories .quick-chip.active{background:linear-gradient(145deg,#d9e2d6,#b8c6b5)!important;color:#121614!important}
 </style>
 </head>
 <body>
@@ -1423,6 +1489,9 @@ body.keyboard-open .bottom-nav{transition:none!important}
         <article class="metric"><span data-i18n="income">Income</span><strong id="income">—</strong><small data-i18n="thisMonth">this month</small></article>
         <article class="metric"><span data-i18n="spent">Spent</span><strong id="expenses">—</strong><small data-i18n="thisMonth">this month</small></article>
       </div>
+
+      <div class="section-head accounts-head"><h2 data-i18n="accounts">Accounts</h2><div class="head-actions"><button class="link-button" type="button" id="transfer-open" data-i18n="transfer">Transfer</button><button class="link-button" type="button" id="account-add" data-i18n="addAccount">Add</button></div></div>
+      <div id="accounts" class="account-strip"></div>
 
       <div class="section-head"><h2 data-i18n="goals">Goals</h2><button class="link-button" data-open="goal-dialog" data-i18n="addGoal">Add goal</button></div>
       <div id="goals" class="goal-stack"></div>
@@ -1470,6 +1539,23 @@ body.keyboard-open .bottom-nav{transition:none!important}
       <div class="section-head"><div><h2 data-i18n="tradeHistory">Trade history</h2><p class="subtle" data-i18n="tradeHistoryHint">Every recorded buy and sell.</p></div></div>
       <div id="investment-history" class="trade-history"></div>
     </section>
+
+    <section id="analytics-view" class="view">
+      <p class="eyebrow" data-i18n="analyticsEyebrow">ANALYTICS</p>
+      <div class="month-switch"><button type="button" class="month-arrow" id="month-prev" aria-label="Previous month">‹</button><h1 id="analytics-month">—</h1><button type="button" class="month-arrow" id="month-next" aria-label="Next month">›</button></div>
+      <article class="analytics-hero">
+        <div class="donut-wrap"><svg id="donut" viewBox="0 0 120 120" aria-hidden="true"></svg><div class="donut-center"><span data-i18n="spent">Spent</span><strong id="an-expenses">—</strong></div></div>
+        <p class="an-compare" id="an-compare"></p>
+      </article>
+      <div class="metric-grid">
+        <article class="metric"><span data-i18n="income">Income</span><strong id="an-income">—</strong><small id="an-income-cmp"></small></article>
+        <article class="metric"><span id="an-rest-label" data-i18n="leftover">Left</span><strong id="an-rest">—</strong><small data-i18n="incomeMinusSpent">income minus spending</small></article>
+      </div>
+      <div class="section-head"><div><h2 data-i18n="byCategory">By category</h2><p class="subtle" data-i18n="byCategoryHint">Tap a category to set a monthly limit.</p></div></div>
+      <div id="an-categories" class="cat-list"></div>
+      <div class="section-head"><h2 data-i18n="incomeSources">Income sources</h2></div>
+      <div id="an-income-list" class="cat-list"></div>
+    </section>
   <section id="settings-view" class="view settings-view">
       <p class="eyebrow" data-i18n="settings">SETTINGS</p>
       <h1 data-i18n="settingsTitle">Settings</h1>
@@ -1485,15 +1571,20 @@ body.keyboard-open .bottom-nav{transition:none!important}
           <p class="field-hint" data-i18n="balanceHint">This is your balance before the transactions recorded in finplan.</p>
           <label><span data-i18n="monthlyLimit">Monthly spending limit</span><input name="monthly_budget" inputmode="decimal" placeholder="Optional"></label>
         </section>
-        <section class="settings-group settings-info"><div class="settings-row"><span data-i18n="telegramStatus">Telegram Mini App</span><strong>Connected</strong></div><div class="settings-row"><span data-i18n="dataStorage">Data</span><strong data-i18n="dataStoredLocally">Saved to your FinPlan account</strong></div></section>
+        <section class="settings-group settings-info"><div class="settings-row"><span data-i18n="telegramStatus">Telegram Mini App</span><strong data-i18n="connected">Connected</strong></div><div class="settings-row"><span data-i18n="dataStorage">Data</span><strong data-i18n="dataStoredLocally">Saved to your FinPlan account</strong></div></section>
         <button class="main-action" type="submit" data-i18n="saveSettings">Save settings</button>
       </form>
+      <section class="settings-group recurring-group"><div class="settings-group-head"><h2 data-i18n="recurringTitle">Recurring payments</h2><button type="button" class="link-button" id="recurring-add" data-i18n="addShort">Add</button></div>
+        <p class="field-hint" data-i18n="recurringHint">Rent, subscriptions, salary: added automatically every month on the chosen day.</p>
+        <div id="recurring-list" class="recurring-list"></div>
+      </section>
     </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Primary navigation">
     <button class="nav-item active" data-nav="home"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg></span><b data-i18n="plan">Plan</b></button>
     <button class="nav-item" data-nav="activity"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg></span><b data-i18n="activity">Activity</b></button>
+    <button class="nav-item" data-nav="analytics"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg></span><b data-i18n="analyticsTab">Analytics</b></button>
     <button class="nav-item" data-nav="invest"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V5M5 19h15M8 16l3-4 3 2 4-6"/></svg></span><b data-i18n="invest">Invest</b></button>
   </nav>
 </div>
@@ -1509,15 +1600,16 @@ body.keyboard-open .bottom-nav{transition:none!important}
 </form></dialog>
 
 <dialog id="transaction-dialog"><form class="sheet" id="transaction-form">
-  <div class="sheet-head"><div><p class="eyebrow" data-i18n="cashFlow">CASH FLOW</p><h2 data-i18n="addTransaction">Add transaction</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
-  <div class="segmented"><button type="button" class="segment active" data-kind="expense" data-i18n="expense">Expense</button><button type="button" class="segment" data-kind="income" data-i18n="income">Income</button></div>
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="cashFlow">CASH FLOW</p><h2 id="transaction-title" data-i18n="addTransaction">Add transaction</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <div class="segmented"><button type="button" class="segment active" data-kind="expense" data-i18n="expense">Expense</button><button type="button" class="segment" data-kind="income" data-i18n="incomeOne">Income</button></div>
   <input type="hidden" name="kind" value="expense">
   <label><span data-i18n="amount">Amount</span><input name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" required></label>
-  <div class="quick-title" data-i18n="quickCategories">Quick categories</div>
+  <div class="quick-title" data-i18n="category">Category</div>
   <div id="quick-categories" class="quick-grid"></div>
-  <label><span data-i18n="category">Category</span><input name="category" value="Other" required></label>
+  <input type="hidden" name="category" value="Other">
   <label><span data-i18n="note">Note</span><input name="note" data-i18n-placeholder="notePlaceholder" placeholder="Coffee, salary, rent…"></label>
-  <button class="main-action" type="submit" data-i18n="saveTransaction">Save transaction</button>
+  <div class="two"><label><span data-i18n="date">Date</span><input name="date" type="date" required></label><label class="account-field"><span data-i18n="account">Account</span><select name="account_id" id="transaction-account"></select></label></div>
+  <div class="two-actions" id="transaction-actions"><button class="secondary-action danger-action" type="button" id="transaction-delete" data-i18n="delete" hidden>Delete</button><button class="main-action" type="submit" data-i18n="saveTransaction">Save transaction</button></div>
 </form></dialog>
 
 <dialog id="goal-dialog"><form class="sheet" id="goal-form">
@@ -1525,6 +1617,7 @@ body.keyboard-open .bottom-nav{transition:none!important}
   <label><span data-i18n="goalName">Goal name</span><input name="title" data-i18n-placeholder="goalPlaceholder" placeholder="Emergency fund, car…" required></label>
   <label><span data-i18n="targetAmount">Target amount</span><input name="target_amount" inputmode="decimal" placeholder="50000" required></label>
   <label><span data-i18n="alreadySaved">Already saved</span><input name="saved_amount" inputmode="decimal" value="0"></label>
+  <label><span data-i18n="goalDeadline">Reach by (optional)</span><input name="target_date" type="date"></label>
   <button class="main-action" type="submit" data-i18n="createGoal">Create goal</button>
 </form></dialog>
 
@@ -1532,6 +1625,8 @@ body.keyboard-open .bottom-nav{transition:none!important}
   <input type="hidden" name="id">
   <div class="sheet-head"><div><p class="eyebrow" data-i18n="goalProgress">GOAL PROGRESS</p><h2 id="goal-edit-title">Goal</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
   <label><span data-i18n="savedAmount">Saved amount</span><input name="saved_amount" inputmode="decimal" required></label>
+  <label><span data-i18n="goalDeadline">Reach by (optional)</span><input name="target_date" type="date"></label>
+  <p class="goal-plan" id="goal-edit-plan"></p>
   <div class="two-actions"><button class="secondary-action danger-action" type="button" id="delete-goal" data-i18n="delete">Delete</button><button class="main-action" type="submit" data-i18n="save">Save</button></div>
 </form></dialog>
 
@@ -1554,6 +1649,43 @@ body.keyboard-open .bottom-nav{transition:none!important}
 
 
 
+
+<dialog id="account-dialog"><form class="sheet" id="account-form">
+  <input type="hidden" name="id">
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="accountsEyebrow">ACCOUNTS</p><h2 id="account-dialog-title" data-i18n="newAccount">New account</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <label><span data-i18n="accountName">Name</span><input name="name" maxlength="60" data-i18n-placeholder="accountPlaceholder" placeholder="Cash, savings, second card…" required></label>
+  <label><span data-i18n="startingBalance">Starting balance</span><input name="opening_balance" inputmode="decimal" placeholder="0"></label>
+  <p class="field-hint" data-i18n="accountHint">Money on this account before you started recording it in finplan.</p>
+  <div class="two-actions"><button class="secondary-action danger-action" type="button" id="account-delete" data-i18n="delete" hidden>Delete</button><button class="main-action" type="submit" data-i18n="save">Save</button></div>
+</form></dialog>
+
+<dialog id="transfer-dialog"><form class="sheet" id="transfer-form">
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="accountsEyebrow">ACCOUNTS</p><h2 data-i18n="transferTitle">Transfer between accounts</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <div class="two"><label><span data-i18n="from">From</span><select name="from_account_id" id="transfer-from"></select></label><label><span data-i18n="to">To</span><select name="to_account_id" id="transfer-to"></select></label></div>
+  <label><span data-i18n="amount">Amount</span><input name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" required></label>
+  <label><span data-i18n="note">Note</span><input name="note" maxlength="200"></label>
+  <p class="field-hint" data-i18n="transferHint">A transfer is not counted as income or spending.</p>
+  <button class="main-action" type="submit" data-i18n="transfer">Transfer</button>
+</form></dialog>
+
+<dialog id="limit-dialog"><form class="sheet" id="limit-form">
+  <input type="hidden" name="category">
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="limitEyebrow">MONTHLY LIMIT</p><h2 id="limit-title">—</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <p class="field-hint" id="limit-spent"></p>
+  <label><span data-i18n="limitAmount">Limit per month</span><input name="limit_amount" inputmode="decimal" autocomplete="off" placeholder="3000"></label>
+  <div class="two-actions"><button class="secondary-action danger-action" type="button" id="limit-remove" data-i18n="removeLimit">Remove</button><button class="main-action" type="submit" data-i18n="save">Save</button></div>
+</form></dialog>
+
+<dialog id="recurring-dialog"><form class="sheet" id="recurring-form">
+  <div class="sheet-head"><div><p class="eyebrow" data-i18n="recurringEyebrow">EVERY MONTH</p><h2 data-i18n="newRecurring">New recurring payment</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <div class="segmented" id="recurring-kind"><button type="button" class="segment active" data-kind="expense" data-i18n="expense">Expense</button><button type="button" class="segment" data-kind="income" data-i18n="incomeOne">Income</button></div>
+  <input type="hidden" name="kind" value="expense">
+  <label><span data-i18n="note">Note</span><input name="note" maxlength="200" data-i18n-placeholder="recurringPlaceholder" placeholder="Rent, Netflix, salary…" required></label>
+  <div class="two"><label><span data-i18n="amount">Amount</span><input name="amount" inputmode="decimal" autocomplete="off" placeholder="0.00" required></label><label><span data-i18n="dayOfMonth">Day of month</span><input name="day_of_month" type="number" inputmode="numeric" min="1" max="31" value="1" required></label></div>
+  <div class="two"><label><span data-i18n="category">Category</span><select name="category" id="recurring-category"></select></label><label class="account-field"><span data-i18n="account">Account</span><select name="account_id" id="recurring-account"></select></label></div>
+  <p class="field-hint" data-i18n="recurringFirstHint">If this month's day has already passed, the first entry is added next month.</p>
+  <button class="main-action" type="submit" data-i18n="save">Save</button>
+</form></dialog>
 
 <dialog id="exchange-dialog"><form class="sheet exchange-sheet" id="exchange-form">
   <div class="sheet-head"><div><p class="eyebrow" data-i18n="exchange">EXCHANGE</p><h2 data-i18n="currencyConverter">Currency converter</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
@@ -1810,7 +1942,7 @@ $$('.filter').forEach(b=>b.onclick=()=>{$$('.filter').forEach(x=>x.classList.rem
 $$('[data-theme]').forEach(b=>b.onclick=()=>{state.me.theme=b.dataset.theme;$('#settings-theme').value=b.dataset.theme;applyTheme(b.dataset.theme);$$('[data-theme]').forEach(x=>x.classList.toggle('active',x===b))});
 $$('[data-lang]').forEach(b=>b.onclick=()=>{state.me.language=b.dataset.lang;$('#settings-language').value=b.dataset.lang;applyLanguage(b.dataset.lang);syncSettingsForm()});
 
-let timer,searchSeq=0;$('#instrument-search').addEventListener('input',e=>{clearTimeout(timer);const q=e.target.value.trim();const seq=++searchSeq;if(q.length<2){$('#search-results').innerHTML='';return}timer=setTimeout(async()=>{try{const results=await api(`/markets/search?q=${encodeURIComponent(q)}`);if(seq!==searchSeq||$('#instrument-search').value.trim()!==q)return;$('#search-results').innerHTML=results.map(i=>`<div class="search-result"><button class="search-main" data-symbol="${esc(i.symbol)}" data-name="${esc(i.name)}" data-type="${esc(i.type)}"><span class="ticker">${esc(i.symbol.slice(0,5))}</span><span><strong>${esc(i.symbol)}</strong><span>${esc(i.name)} · ${esc(i.type)}</span></span><span class="search-arrow">›</span></button></div>`).join('')||`<div class="empty">No instruments found.</div>`;$$('.search-main').forEach(b=>b.onclick=()=>openAsset(b.dataset.symbol,b.dataset.name,b.dataset.type))}catch(err){if(seq===searchSeq)$('#search-results').innerHTML=`<div class="empty">${esc(err.message)}</div>`}},300)});
+let timer,searchSeq=0;$('#instrument-search').addEventListener('input',e=>{clearTimeout(timer);const q=e.target.value.trim();const seq=++searchSeq;if(q.length<2){$('#search-results').innerHTML='';return}timer=setTimeout(async()=>{try{const results=await api(`/markets/search?q=${encodeURIComponent(q)}`);if(seq!==searchSeq||$('#instrument-search').value.trim()!==q)return;$('#search-results').innerHTML=results.map(i=>`<div class="search-result"><button class="search-main" data-symbol="${esc(i.symbol)}" data-name="${esc(i.name)}" data-type="${esc(i.type)}"><span class="ticker">${esc(i.symbol.slice(0,5))}</span><span><strong>${esc(i.symbol)}</strong><span>${esc(i.name)} · ${esc(i.type)}</span></span><span class="search-arrow">›</span></button></div>`).join('')||`<div class="empty">${t('noInstruments')}</div>`;$$('.search-main').forEach(b=>b.onclick=()=>openAsset(b.dataset.symbol,b.dataset.name,b.dataset.type))}catch(err){if(seq===searchSeq)$('#search-results').innerHTML=`<div class="empty">${esc(err.message)}</div>`}},300)});
 
 ['input','change'].forEach(evt=>$('#investment-form').addEventListener(evt,e=>{if(e.target.matches('[name=trade_amount],[name=price],[name=fee],[name=currency]'))updateTradeTotal()}));updateTradeTotal();upgradeSelects();
 
@@ -1856,7 +1988,216 @@ $('#keyboard-dismiss')?.addEventListener('click',()=>dismissKeyboard({restore:fa
 window.addEventListener('online',()=>toast('Online'));window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{if(state.me?.theme==='system')applyTheme('system')});tg?.onEvent?.('themeChanged',()=>{if(state.me?.theme==='system')applyTheme('system')});tg?.onEvent?.('viewportChanged',()=>{if(keyboardState.open)centerFocusedInput()});
 
 fillCurrencies();
-loadHome().catch(e=>{console.error(e);if(!tg)bootError('Open finplan in Telegram','Open this Mini App from Telegram.');else if(!tg.initData)bootError('Telegram auth is missing','Close the Mini App and open it again from the finplan button.');else bootError('Connection failed',e.message||'API unavailable')});
+// Start after the v24 script below has installed its overrides.
+document.addEventListener('DOMContentLoaded',()=>loadHome().catch(e=>{console.error(e);if(!tg)bootError('Open finplan in Telegram','Open this Mini App from Telegram.');else if(!tg.initData)bootError('Telegram auth is missing','Close the Mini App and open it again from the finplan button.');else bootError('Connection failed',e.message||'API unavailable')}));
+</script>
+<script id="finplan-v24">
+/* v24: accounts & transfers, analytics, category limits, editing operations,
+   recurring payments, goal deadlines, translations. Overrides some v14 globals. */
+(()=>{
+const V24_I18N={
+  ru:{accounts:"Счета",transfer:"Перевод",addAccount:"Добавить",analyticsEyebrow:"АНАЛИТИКА",analyticsTab:"Аналитика",leftover:"Осталось",overspent:"Перерасход",incomeMinusSpent:"доходы минус расходы",byCategory:"По категориям",byCategoryHint:"Нажми на категорию, чтобы задать лимит на месяц.",incomeSources:"Источники дохода",connected:"Подключено",recurringTitle:"Регулярные платежи",addShort:"Добавить",recurringHint:"Аренда, подписки, зарплата — добавляются сами каждый месяц в выбранный день.",incomeOne:"Доход",date:"Дата",account:"Счёт",mainAccount:"Основной",editTransaction:"Изменить операцию",goalDeadline:"Накопить к дате (необязательно)",accountsEyebrow:"СЧЕТА",newAccount:"Новый счёт",editAccount:"Счёт",accountName:"Название",accountPlaceholder:"Наличные, накопления, вторая карта…",accountHint:"Сколько денег было на этом счёте до начала учёта в finplan.",transferTitle:"Перевод между счетами",transferHint:"Перевод не считается ни доходом, ни расходом.",limitEyebrow:"ЛИМИТ НА МЕСЯЦ",limitAmount:"Лимит в месяц",removeLimit:"Убрать лимит",recurringEyebrow:"КАЖДЫЙ МЕСЯЦ",newRecurring:"Регулярный платёж",recurringPlaceholder:"Аренда, Netflix, зарплата…",dayOfMonth:"День месяца",recurringFirstHint:"Если в этом месяце этот день уже прошёл, первая запись появится в следующем месяце.",noInstruments:"Ничего не найдено.",noExpensesMonth:"В этом месяце расходов нет.",noIncomeMonth:"В этом месяце доходов нет.",cmpMore:"Расходы на {p}% больше, чем в прошлом месяце",cmpLess:"Расходы на {p}% меньше, чем в прошлом месяце",cmpSame:"Расходы такие же, как в прошлом месяце",cmpIncomeMore:"+{p}% к прошлому месяцу",cmpIncomeLess:"−{p}% к прошлому месяцу",limitShort:"лимит",overLimit:"Превышен на {x}",leftInLimit:"Осталось {x}",spentThisMonth:"Потрачено в этом месяце: {x}",perMonth:"≈ {x} в месяц до {d}",goalOverdue:"Срок прошёл",noRecurring:"Регулярных платежей пока нет.",everyMonthOn:"{d}-го числа",confirmDeleteAccount:"Удалить счёт? Его операции перейдут на основной счёт, а начальный баланс счёта пропадёт.",confirmDeleteTx:"Удалить эту операцию?",confirmDeleteRecurring:"Удалить регулярный платёж? Уже записанные операции останутся.",transferWord:"Перевод",needTwoAccounts:"Сначала добавь второй счёт.",prevMonthIn:"прошлом месяце"},
+  uk:{accounts:"Рахунки",transfer:"Переказ",addAccount:"Додати",analyticsEyebrow:"АНАЛІТИКА",analyticsTab:"Аналітика",leftover:"Залишилось",overspent:"Перевитрата",incomeMinusSpent:"доходи мінус витрати",byCategory:"За категоріями",byCategoryHint:"Натисни на категорію, щоб задати ліміт на місяць.",incomeSources:"Джерела доходу",connected:"Підключено",recurringTitle:"Регулярні платежі",addShort:"Додати",recurringHint:"Оренда, підписки, зарплата — додаються самі щомісяця в обраний день.",incomeOne:"Дохід",date:"Дата",account:"Рахунок",mainAccount:"Основний",editTransaction:"Змінити операцію",goalDeadline:"Накопичити до дати (необов'язково)",accountsEyebrow:"РАХУНКИ",newAccount:"Новий рахунок",editAccount:"Рахунок",accountName:"Назва",accountPlaceholder:"Готівка, заощадження, друга картка…",accountHint:"Скільки грошей було на цьому рахунку до початку обліку у finplan.",transferTitle:"Переказ між рахунками",transferHint:"Переказ не рахується ні доходом, ні витратою.",limitEyebrow:"ЛІМІТ НА МІСЯЦЬ",limitAmount:"Ліміт на місяць",removeLimit:"Прибрати ліміт",recurringEyebrow:"ЩОМІСЯЦЯ",newRecurring:"Регулярний платіж",recurringPlaceholder:"Оренда, Netflix, зарплата…",dayOfMonth:"День місяця",recurringFirstHint:"Якщо цього місяця цей день уже минув, перший запис з'явиться наступного місяця.",noInstruments:"Нічого не знайдено.",noExpensesMonth:"Цього місяця витрат немає.",noIncomeMonth:"Цього місяця доходів немає.",cmpMore:"Витрати на {p}% більші, ніж минулого місяця",cmpLess:"Витрати на {p}% менші, ніж минулого місяця",cmpSame:"Витрати такі ж, як минулого місяця",cmpIncomeMore:"+{p}% до минулого місяця",cmpIncomeLess:"−{p}% до минулого місяця",limitShort:"ліміт",overLimit:"Перевищено на {x}",leftInLimit:"Залишилось {x}",spentThisMonth:"Витрачено цього місяця: {x}",perMonth:"≈ {x} на місяць до {d}",goalOverdue:"Термін минув",noRecurring:"Регулярних платежів поки немає.",everyMonthOn:"{d}-го числа",confirmDeleteAccount:"Видалити рахунок? Його операції перейдуть на основний рахунок, а початковий баланс рахунку зникне.",confirmDeleteTx:"Видалити цю операцію?",confirmDeleteRecurring:"Видалити регулярний платіж? Уже записані операції залишаться.",transferWord:"Переказ",needTwoAccounts:"Спочатку додай другий рахунок.",prevMonthIn:"минулому місяці"},
+  en:{accounts:"Accounts",transfer:"Transfer",addAccount:"Add",analyticsEyebrow:"ANALYTICS",analyticsTab:"Analytics",leftover:"Left",overspent:"Overspent",incomeMinusSpent:"income minus spending",byCategory:"By category",byCategoryHint:"Tap a category to set a monthly limit.",incomeSources:"Income sources",connected:"Connected",recurringTitle:"Recurring payments",addShort:"Add",recurringHint:"Rent, subscriptions, salary: added automatically every month on the chosen day.",incomeOne:"Income",date:"Date",account:"Account",mainAccount:"Main",editTransaction:"Edit transaction",goalDeadline:"Reach by (optional)",accountsEyebrow:"ACCOUNTS",newAccount:"New account",editAccount:"Account",accountName:"Name",accountPlaceholder:"Cash, savings, second card…",accountHint:"Money on this account before you started recording it in finplan.",transferTitle:"Transfer between accounts",transferHint:"A transfer is not counted as income or spending.",limitEyebrow:"MONTHLY LIMIT",limitAmount:"Limit per month",removeLimit:"Remove limit",recurringEyebrow:"EVERY MONTH",newRecurring:"Recurring payment",recurringPlaceholder:"Rent, Netflix, salary…",dayOfMonth:"Day of month",recurringFirstHint:"If this month's day has already passed, the first entry is added next month.",noInstruments:"No instruments found.",noExpensesMonth:"No spending this month.",noIncomeMonth:"No income this month.",cmpMore:"Spending is {p}% higher than last month",cmpLess:"Spending is {p}% lower than last month",cmpSame:"Spending is the same as last month",cmpIncomeMore:"+{p}% vs last month",cmpIncomeLess:"−{p}% vs last month",limitShort:"limit",overLimit:"Over by {x}",leftInLimit:"{x} left",spentThisMonth:"Spent this month: {x}",perMonth:"≈ {x} a month until {d}",goalOverdue:"Deadline passed",noRecurring:"No recurring payments yet.",everyMonthOn:"day {d}",confirmDeleteAccount:"Delete this account? Its transactions move to the main account and its starting balance is dropped.",confirmDeleteTx:"Delete this transaction?",confirmDeleteRecurring:"Delete this recurring payment? Entries already recorded stay.",transferWord:"Transfer",needTwoAccounts:"Add a second account first.",prevMonthIn:"last month"}
+};
+Object.keys(V24_I18N).forEach(l=>Object.assign(I18N[l],V24_I18N[l]));
+
+const PALETTE=['#536c59','#c9a66b','#78907c','#b0645b','#6b8fa3','#a3b18a','#8a7f9e','#d4b483','#9c6644','#4f6f73','#c08497','#7d8c5c'];
+const lang=()=>state.me?.language||localStorage.getItem('finplan_lang')||'uk';
+const locale=()=>({en:'en-GB',ru:'ru-RU'}[lang()]||'uk-UA');
+const tf=(k,vars={})=>t(k).replace(/\{(\w+)\}/g,(_,v)=>vars[v]??'');
+const cur=()=>state.dashboard?.currency||state.me?.currency||'UAH';
+const catLabel=c=>CAT_LABELS[lang()]?.[c]||c;
+const pad=n=>String(n).padStart(2,'0');
+// form.id / form.name / form.title are element properties; read controls by name instead.
+const field=(form,name)=>form.querySelector(`[name="${name}"]`);
+const todayISO=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const isoDay=v=>{const d=new Date(v);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const monthKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+const monthTitle=(key,opts={month:'long',year:'numeric'})=>{const [y,m]=key.split('-').map(Number);const s=new Date(y,m-1,1).toLocaleDateString(locale(),opts).replace(/\s*г\.$/,'').replace(/\s*р\.$/,'');return s.charAt(0).toUpperCase()+s.slice(1)};
+const monthIn=key=>{const [y,m]=key.split('-').map(Number);try{return new Intl.DateTimeFormat(locale(),{month:'long'}).formatToParts(new Date(y,m-1,15)).find(p=>p.type==='month').value}catch{return t('prevMonthIn')}};
+const accountsList=()=>state.dashboard?.accounts||[{id:null,name:null,balance:0}];
+const accountName=id=>{if(id==null)return t('mainAccount');return accountsList().find(a=>a.id===id)?.name||t('mainAccount')};
+const hasExtraAccounts=()=>accountsList().length>1;
+const refreshAfterChange=async()=>{await loadHome();if(isActive('analytics'))await loadAnalytics();if(isActive('settings'))await loadRecurring()};
+const isActive=name=>$(`#${name}-view`)?.classList.contains('active');
+
+/* Forms whose v14 submit handlers are replaced: cloning drops the old listeners. */
+['transaction-form','goal-form','goal-edit-form'].forEach(id=>{const f=$('#'+id);const c=f.cloneNode(true);f.replaceWith(c)});
+$$('[data-close]').forEach(b=>{b.onclick=closeDialogs});
+$$('select').forEach(s=>{if(!s.dataset.v24){s.dataset.v24='1';s.addEventListener('change',()=>syncSelectFace(s))}});
+
+function fillAccountSelect(select,value){
+  select.innerHTML=accountsList().map(a=>`<option value="${a.id??''}">${esc(a.id==null?t('mainAccount'):a.name)}</option>`).join('');
+  select.value=value==null?'':String(value);
+  if(select.selectedIndex<0)select.value='';
+  upgradeSelects();syncSelectFace(select);
+}
+function toggleAccountField(form){const field=form.querySelector('.account-field');if(!field)return;const show=hasExtraAccounts();field.hidden=!show;field.parentElement.classList.toggle('single',!show)}
+
+/* ---------- activity rows ---------- */
+activityRow=function(item){
+  const date=new Date(item.occurred_at).toLocaleDateString(locale(),{day:'2-digit',month:'short'});
+  if(item.kind==='transfer_in'||item.kind==='transfer_out'){
+    const inflow=item.kind==='transfer_in';
+    return `<article class="activity transfer-row"><span class="icon transfer-bg">⇄</span><div class="copy"><strong>${esc(item.note||t('transferWord'))}</strong><span>${esc(accountName(item.account_id))} · ${date}</span></div><strong class="amount transfer">${inflow?'+':'−'}${fmt(item.amount,cur())}</strong><button class="row-more" data-delete-tx="${item.id}" aria-label="${t('delete')}">×</button></article>`;
+  }
+  const positive=item.kind==='income';
+  const title=item.note||catLabel(item.category);
+  const acc=hasExtraAccounts()?` · ${esc(accountName(item.account_id))}`:'';
+  return `<article class="activity" data-edit-tx="${item.id}" role="button" tabindex="0"><span class="icon ${positive?'income-bg':'expense-bg'}">${positive?'↑':'↓'}</span><div class="copy"><strong>${esc(title)}</strong><span>${esc(catLabel(item.category))}${acc} · ${date}</span></div><strong class="amount ${positive?'income':'expense'}">${positive?'+':'−'}${fmt(item.amount,cur())}</strong><button class="row-more" data-delete-tx="${item.id}" aria-label="${t('delete')}">×</button></article>`;
+};
+renderTransactions=function(){const list=state.transactions.filter(x=>state.filter==='all'||x.kind===state.filter);$("#transactions").innerHTML=list.length?list.map(activityRow).join(""):`<div class="empty">${t('noTransactions')}</div>`};
+deleteTransaction=async function(id){if(!confirm(t('confirmDeleteTx')))return false;try{await api(`/transactions/${id}`,{method:'DELETE'});closeDialogs();toast(t('deleted'));await refreshAfterChange();if(isActive('activity'))renderTransactions();return true}catch(e){toast(e.message);return false}};
+document.addEventListener('click',e=>{
+  const del=e.target.closest('[data-delete-tx]');
+  if(del){e.stopPropagation();deleteTransaction(Number(del.dataset.deleteTx));return}
+  const row=e.target.closest('[data-edit-tx]');
+  if(row){const tx=state.transactions.find(x=>x.id===Number(row.dataset.editTx));if(tx)openTransaction(tx)}
+});
+
+/* ---------- transaction dialog: create & edit ---------- */
+let txEditing=null;
+renderQuickCategories=function(){
+  const form=$('#transaction-form');const kind=form.kind.value;const current=form.category.value||'Other';
+  const cats=QUICK[kind].includes(current)?QUICK[kind]:[...QUICK[kind],current];
+  $('#quick-categories').innerHTML=cats.map(c=>`<button type="button" class="quick-chip${c===current?' active':''}" data-cat="${esc(c)}"><span>${QUICK_ICONS[c]||'•'}</span>${esc(catLabel(c))}</button>`).join('');
+  $$('#quick-categories [data-cat]').forEach(b=>b.onclick=()=>{$$('#quick-categories [data-cat]').forEach(x=>x.classList.remove('active'));b.classList.add('active');form.category.value=b.dataset.cat});
+};
+function setTxKind(kind){const form=$('#transaction-form');form.kind.value=kind;$$('#transaction-form .segment').forEach(x=>x.classList.toggle('active',x.dataset.kind===kind))}
+$$('#transaction-form .segment').forEach(b=>b.onclick=()=>{setTxKind(b.dataset.kind);$('#transaction-form').category.value='Other';renderQuickCategories()});
+function prepareTransaction(tx){
+  txEditing=tx||null;const form=$('#transaction-form');form.reset();
+  setTxKind(tx?.kind||'expense');
+  form.category.value=tx?.category||'Other';
+  form.amount.value=tx?Number(tx.amount):'';
+  form.note.value=tx?.note||'';
+  form.date.value=tx?isoDay(tx.occurred_at):todayISO();
+  fillAccountSelect($('#transaction-account'),tx?tx.account_id:null);toggleAccountField(form);
+  $('#transaction-title').textContent=t(tx?'editTransaction':'addTransaction');
+  $('#transaction-delete').hidden=!tx;$('#transaction-form [type=submit]').textContent=t(tx?'save':'saveTransaction');$('#transaction-actions').classList.toggle('single',!tx);
+  renderQuickCategories();
+}
+function openTransaction(tx){prepareTransaction(tx);openDialog('transaction-dialog')}
+$$('[data-open="transaction-dialog"]').forEach(b=>b.addEventListener('click',()=>prepareTransaction(null)));
+$('#transaction-delete').onclick=()=>{if(txEditing)deleteTransaction(txEditing.id)};
+$('#transaction-form').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.currentTarget;const amount=Number(String(f.amount.value).replace(',','.'));
+  if(!(amount>0)){toast(t('amount'));return}
+  let occurred=null;
+  if(txEditing&&f.date.value===isoDay(txEditing.occurred_at))occurred=txEditing.occurred_at;
+  else if(f.date.value&&(txEditing||f.date.value!==todayISO()))occurred=new Date(f.date.value+'T12:00:00').toISOString();
+  const body={kind:f.kind.value,amount,category:f.category.value||'Other',note:f.note.value.trim()||null,account_id:f.account_id.value?Number(f.account_id.value):null,occurred_at:occurred};
+  try{await api(txEditing?`/transactions/${txEditing.id}`:'/transactions',{method:txEditing?'PATCH':'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await refreshAfterChange();if(isActive('activity'))renderTransactions()}catch(err){toast(err.message)}
+});
+
+/* ---------- accounts ---------- */
+function renderAccounts(){
+  const list=accountsList();
+  $('#accounts').innerHTML=list.map((a,i)=>`<button type="button" class="account-card" data-account="${a.id??'main'}"><span class="account-dot" style="background:${PALETTE[i%PALETTE.length]}"></span><span class="account-name">${esc(a.id==null?t('mainAccount'):a.name)}</span><strong>${fmt(a.balance,cur())}</strong></button>`).join('');
+  $('#transfer-open').hidden=list.length<2;
+  $$('[data-account]').forEach(b=>b.onclick=()=>{const id=b.dataset.account;if(id==='main'){showView('settings');return}openAccount(list.find(a=>String(a.id)===id))});
+}
+function openAccount(acc){const f=$('#account-form');f.reset();field(f,'id').value=acc?.id??'';field(f,'name').value=acc?.name||'';f.opening_balance.value=acc?Number(acc.opening_balance):'';$('#account-dialog-title').textContent=t(acc?'editAccount':'newAccount');$('#account-delete').hidden=!acc;f.querySelector('.two-actions').classList.toggle('single',!acc);openDialog('account-dialog')}
+$('#account-add').onclick=()=>openAccount(null);
+$('#account-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const id=field(f,'id').value;const body={name:field(f,'name').value.trim(),opening_balance:Number(String(f.opening_balance.value||0).replace(',','.'))||0};if(!body.name)return;try{await api(id?`/accounts/${id}`:'/accounts',{method:id?'PATCH':'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await refreshAfterChange()}catch(err){toast(err.message)}});
+$('#account-delete').onclick=async()=>{const id=field($('#account-form'),'id').value;if(!id||!confirm(t('confirmDeleteAccount')))return;try{await api(`/accounts/${id}`,{method:'DELETE'});closeDialogs();toast(t('deleted'));await refreshAfterChange()}catch(err){toast(err.message)}};
+$('#transfer-open').onclick=()=>{if(!hasExtraAccounts()){toast(t('needTwoAccounts'));return}const f=$('#transfer-form');f.reset();fillAccountSelect($('#transfer-from'),null);fillAccountSelect($('#transfer-to'),accountsList()[1].id);openDialog('transfer-dialog')};
+$('#transfer-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const amount=Number(String(f.amount.value).replace(',','.'));if(!(amount>0)){toast(t('amount'));return}const body={from_account_id:f.from_account_id.value?Number(f.from_account_id.value):null,to_account_id:f.to_account_id.value?Number(f.to_account_id.value):null,amount,note:f.note.value.trim()||null};try{await api('/accounts/transfer',{method:'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await refreshAfterChange()}catch(err){toast(err.message)}});
+
+/* ---------- goals with a deadline ---------- */
+function goalPlan(g){
+  if(!g.target_date)return'';
+  const left=Number(g.target_amount)-Number(g.saved_amount);if(left<=0)return'';
+  const end=new Date(g.target_date),now=new Date();
+  if(end<now)return t('goalOverdue');
+  let months=(end.getFullYear()-now.getFullYear())*12+(end.getMonth()-now.getMonth());
+  if(end.getDate()<now.getDate())months-=1;
+  months=Math.max(1,months);
+  const when=end.toLocaleDateString(locale(),{day:'numeric',month:'short',year:'numeric'});
+  return tf('perMonth',{x:fmt(left/months,cur()),d:when});
+}
+renderGoals=function(goals,currency){
+  $("#goals").innerHTML=goals.length?goals.map(g=>{const pct=Math.min(100,Number(g.saved_amount)/Number(g.target_amount)*100||0);const plan=goalPlan(g);return `<button class="goal" data-goal="${g.id}"><div class="goal-head"><span class="goal-name">${esc(g.title)}</span><span class="goal-percent">${pct>=100?t('goalDone'):pct.toFixed(0)+'%'}</span></div><div class="goal-meta"><span>${fmt(g.saved_amount,currency)}</span><span>${fmt(g.target_amount,currency)}</span></div><div class="goal-bar"><i style="width:${pct}%"></i></div>${plan?`<p class="goal-plan">${esc(plan)}</p>`:''}</button>`}).join(""):`<div class="empty">${t('noGoals')}</div>`;
+  $$('[data-goal]').forEach(b=>b.onclick=()=>editGoal(Number(b.dataset.goal)));
+};
+editGoal=async function(id){const g=state.dashboard?.goals.find(x=>x.id===id);if(!g)return;state.goalEditing=g;const f=$('#goal-edit-form');$("#goal-edit-title").textContent=g.title;field(f,'id').value=id;f.saved_amount.value=Number(g.saved_amount);f.target_date.value=g.target_date?isoDay(g.target_date):'';$('#goal-edit-plan').textContent=goalPlan(g);openDialog('goal-edit-dialog')};
+const dateToISO=v=>v?new Date(v+'T12:00:00').toISOString():null;
+$('#goal-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const body={title:field(f,'title').value.trim(),target_amount:Number(String(f.target_amount.value).replace(',','.')),saved_amount:Number(String(f.saved_amount.value||0).replace(',','.'))||0,target_date:dateToISO(f.target_date.value)};if(!(body.target_amount>0)){toast(t('amount'));return}try{await api('/goals',{method:'POST',body:JSON.stringify(body)});closeDialogs();f.reset();toast(t('saved'));await loadHome()}catch(err){toast(err.message)}});
+$('#goal-edit-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const body={saved_amount:Number(String(f.saved_amount.value).replace(',','.'))||0};if(f.target_date.value)body.target_date=dateToISO(f.target_date.value);else body.clear_target_date=true;try{await api(`/goals/${field(f,'id').value}`,{method:'PATCH',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await loadHome()}catch(err){toast(err.message)}});
+$('#delete-goal').onclick=async()=>{if(!state.goalEditing)return;try{await api(`/goals/${state.goalEditing.id}`,{method:'DELETE'});closeDialogs();toast(t('deleted'));await loadHome()}catch(e){toast(e.message)}};
+$$('[data-open="goal-dialog"]').forEach(b=>b.addEventListener('click',()=>$('#goal-form').reset()));
+
+/* ---------- analytics ---------- */
+let anMonth=monthKey(new Date()),anData=null;
+async function loadAnalytics(){try{anData=await api(`/analytics?month=${anMonth}`);renderAnalytics()}catch(e){toast(e.message)}}
+function pctChange(now,prev){now=Number(now);prev=Number(prev);if(!(prev>0))return null;return Math.round((now-prev)/prev*100)}
+function donut(rows,total){
+  const C=2*Math.PI*46;let offset=0;
+  if(!(total>0))return `<circle cx="60" cy="60" r="46" class="donut-track"/>`;
+  return `<circle cx="60" cy="60" r="46" class="donut-track"/>`+rows.map((r,i)=>{const len=Number(r.amount)/total*C;const gap=rows.length>1?Math.min(1.6,len/3):0;const s=`<circle cx="60" cy="60" r="46" stroke="${PALETTE[i%PALETTE.length]}" stroke-dasharray="${Math.max(0,len-gap)} ${C}" stroke-dashoffset="${-offset}" class="donut-seg"/>`;offset+=len;return s}).join('');
+}
+function renderAnalytics(){
+  const d=anData;if(!d)return;const c=d.currency;
+  $('#analytics-month').textContent=monthTitle(d.month);
+  $('#month-next').disabled=d.month>=monthKey(new Date());
+  const [y,m]=d.month.split('-').map(Number);const prevKey=monthKey(new Date(y,m-2,1));
+  const total=Number(d.expenses_total);
+  const spentRows=d.expenses.filter(r=>Number(r.amount)>0);
+  $('#donut').innerHTML=donut(spentRows,total);
+  $('#an-expenses').textContent=fmt(total,c);
+  const ch=pctChange(d.expenses_total,d.prev_expenses_total);
+  const cmp=$('#an-compare');cmp.className='an-compare'+(ch==null?'':ch>0?' up':ch<0?' down':'');
+  cmp.textContent=ch==null||!(total>0)?'':tf(ch>0?'cmpMore':ch<0?'cmpLess':'cmpSame',{p:Math.abs(ch),m:monthIn(prevKey)});
+  $('#an-income').textContent=fmt(d.income_total,c);
+  const ich=pctChange(d.income_total,d.prev_income_total);
+  $('#an-income-cmp').textContent=ich==null?'':tf(ich>=0?'cmpIncomeMore':'cmpIncomeLess',{p:Math.abs(ich),m:monthIn(prevKey)});
+  const rest=Number(d.income_total)-total;
+  $('#an-rest-label').textContent=t(rest>=0?'leftover':'overspent');
+  $('#an-rest').textContent=fmt(Math.abs(rest),c);$('#an-rest').className=rest>=0?'':'negative';
+  const idx=new Map(spentRows.map((r,i)=>[r.category,i]));
+  $('#an-categories').innerHTML=d.expenses.length?d.expenses.map(r=>{
+    const amount=Number(r.amount),share=total>0?Math.round(amount/total*100):0,i=idx.get(r.category);
+    const color=i==null?'var(--line)':PALETTE[i%PALETTE.length];const delta=pctChange(r.amount,r.prev_amount);
+    const deltaHtml=delta==null||amount===0?'':`<span class="delta ${delta>0?'up':delta<0?'down':''}">${delta>0?'▲':delta<0?'▼':''}${Math.abs(delta)}%</span>`;
+    let limit='';
+    if(r.limit!=null){const lim=Number(r.limit),p=lim>0?Math.min(100,amount/lim*100):0,over=amount>lim;limit=`<div class="limit-line"><div class="limit-bar${over?' over':''}"><i style="width:${p}%"></i></div><small class="${over?'negative':''}">${over?tf('overLimit',{x:fmt(amount-lim,c)}):tf('leftInLimit',{x:fmt(lim-amount,c)})} · ${t('limitShort')} ${fmt(lim,c)}</small></div>`}
+    return `<button type="button" class="cat-row" data-limit-cat="${esc(r.category)}"><span class="cat-dot" style="background:${color}"></span><span class="cat-main"><span class="cat-top"><strong>${esc(catLabel(r.category))}</strong><b>${fmt(amount,c)}</b></span><span class="cat-sub"><span>${share}%</span>${deltaHtml}</span>${limit}</span></button>`;
+  }).join(''):`<div class="empty">${t('noExpensesMonth')}</div>`;
+  $('#an-income-list').innerHTML=d.income.length?d.income.map(r=>{const delta=pctChange(r.amount,r.prev_amount);const share=Number(d.income_total)>0?Math.round(Number(r.amount)/Number(d.income_total)*100):0;return `<div class="cat-row static"><span class="cat-dot" style="background:var(--green)"></span><span class="cat-main"><span class="cat-top"><strong>${esc(catLabel(r.category))}</strong><b>+${fmt(r.amount,c)}</b></span><span class="cat-sub"><span>${share}%</span>${delta==null?'':`<span class="delta ${delta>=0?'down':'up'}">${delta>0?'▲':delta<0?'▼':''}${Math.abs(delta)}%</span>`}</span></span></div>`}).join(''):`<div class="empty">${t('noIncomeMonth')}</div>`;
+  $$('[data-limit-cat]').forEach(b=>b.onclick=()=>openLimit(d.expenses.find(r=>r.category===b.dataset.limitCat)));
+}
+$('#month-prev').onclick=()=>{const [y,m]=anMonth.split('-').map(Number);anMonth=monthKey(new Date(y,m-2,1));loadAnalytics()};
+$('#month-next').onclick=()=>{const [y,m]=anMonth.split('-').map(Number);const next=monthKey(new Date(y,m,1));if(next<=monthKey(new Date())){anMonth=next;loadAnalytics()}};
+function openLimit(row){if(!row)return;const f=$('#limit-form');f.category.value=row.category;$('#limit-title').textContent=catLabel(row.category);$('#limit-spent').textContent=tf('spentThisMonth',{x:fmt(row.amount,cur())});f.limit_amount.value=row.limit!=null?Number(row.limit):'';$('#limit-remove').hidden=row.limit==null;f.querySelector('.two-actions').classList.toggle('single',row.limit==null);openDialog('limit-dialog')}
+async function saveLimit(value){const f=$('#limit-form');try{await api(`/budgets/${encodeURIComponent(f.category.value)}`,{method:'PUT',body:JSON.stringify({limit_amount:value})});closeDialogs();toast(t('saved'));await loadAnalytics()}catch(err){toast(err.message)}}
+$('#limit-form').addEventListener('submit',e=>{e.preventDefault();const v=Number(String(e.currentTarget.limit_amount.value).replace(',','.'));saveLimit(v>0?v:null)});
+$('#limit-remove').onclick=()=>saveLimit(null);
+
+/* ---------- recurring payments ---------- */
+let recurringItems=[];
+async function loadRecurring(){try{recurringItems=await api('/recurring');renderRecurring()}catch(e){toast(e.message)}}
+function renderRecurring(){
+  $('#recurring-list').innerHTML=recurringItems.length?recurringItems.map(r=>{const inc=r.kind==='income';const acc=hasExtraAccounts()?` · ${esc(accountName(r.account_id))}`:'';return `<article class="recurring-row"><span class="icon ${inc?'income-bg':'expense-bg'}">${inc?'↑':'↓'}</span><div class="copy"><strong>${esc(r.note||catLabel(r.category))}</strong><span>${esc(catLabel(r.category))} · ${tf('everyMonthOn',{d:r.day_of_month})}${acc}</span></div><strong class="amount ${inc?'income':'expense'}">${inc?'+':'−'}${fmt(r.amount,cur())}</strong><button type="button" class="row-more" data-del-rec="${r.id}" aria-label="${t('delete')}">×</button></article>`}).join(''):`<div class="empty">${t('noRecurring')}</div>`;
+  $$('[data-del-rec]').forEach(b=>b.onclick=async()=>{if(!confirm(t('confirmDeleteRecurring')))return;try{await api(`/recurring/${b.dataset.delRec}`,{method:'DELETE'});toast(t('deleted'));await loadRecurring()}catch(e){toast(e.message)}});
+}
+function fillRecurringCategories(kind,value){const s=$('#recurring-category');s.innerHTML=QUICK[kind].map(c=>`<option value="${c}">${esc(catLabel(c))}</option>`).join('');s.value=QUICK[kind].includes(value)?value:(kind==='income'?'Salary':'Home');upgradeSelects();syncSelectFace(s)}
+function setRecurringKind(kind){const f=$('#recurring-form');f.kind.value=kind;$$('#recurring-kind .segment').forEach(x=>x.classList.toggle('active',x.dataset.kind===kind));fillRecurringCategories(kind)}
+$$('#recurring-kind .segment').forEach(b=>b.onclick=()=>setRecurringKind(b.dataset.kind));
+$('#recurring-add').onclick=()=>{const f=$('#recurring-form');f.reset();setRecurringKind('expense');f.day_of_month.value=new Date().getDate();fillAccountSelect($('#recurring-account'),null);toggleAccountField(f);openDialog('recurring-dialog')};
+$('#recurring-form').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;const amount=Number(String(f.amount.value).replace(',','.'));const day=Math.min(31,Math.max(1,parseInt(f.day_of_month.value,10)||1));if(!(amount>0)){toast(t('amount'));return}const body={kind:f.kind.value,amount,category:f.category.value||'Other',note:f.note.value.trim()||null,account_id:f.account_id.value?Number(f.account_id.value):null,day_of_month:day};try{await api('/recurring',{method:'POST',body:JSON.stringify(body)});closeDialogs();toast(t('saved'));await loadRecurring();await loadHome()}catch(err){toast(err.message)}});
+
+/* ---------- wiring into v14 ---------- */
+const baseLoadHome=loadHome;
+loadHome=async function(){await baseLoadHome();renderAccounts()};
+const baseShowView=showView;
+showView=function(name){baseShowView(name);if(name==='analytics'){anMonth=anMonth||monthKey(new Date());loadAnalytics()}if(name==='settings')loadRecurring()};
+$$('[data-nav]').forEach(b=>{b.replaceWith(b.cloneNode(true))});
+$$('[data-nav]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.nav)));
+$('#settings-button').onclick=()=>showView('settings');
+const baseApplyLanguage=applyLanguage;
+applyLanguage=function(l){baseApplyLanguage(l);if(state.dashboard)renderAccounts();if(anData&&isActive('analytics'))renderAnalytics();if(isActive('settings'))renderRecurring()};
+})();
 </script>
 </body>
 </html>
