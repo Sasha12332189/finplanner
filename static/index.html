@@ -1559,6 +1559,15 @@ body.keyboard-open .bottom-nav{transition:none!important}
 .ts-main b{font-size:16px;color:var(--ink);text-align:right}
 .ts-main small{display:block;font-size:11px;color:var(--muted);font-weight:650}
 .ts-note,.ts-warn{margin:0;font-size:11px;font-weight:700;color:var(--muted)}
+
+/* Same surface as the app's standard cards (.metric / .searchbox), measured in both themes. */
+.pf-hero,.cash-card,.pv-card,.sr-item,.th-row,.account-card,.analytics-hero,.cat-row{background:linear-gradient(145deg,rgba(225,235,226,.82),rgba(195,211,198,.68))!important;border:1px solid rgba(83,108,89,.2)!important;box-shadow:0 18px 46px rgba(63,89,72,.12),inset 0 1px 0 rgba(255,255,255,.58)!important;backdrop-filter:blur(28px) saturate(145%)!important;-webkit-backdrop-filter:blur(28px) saturate(145%)!important}
+:root[data-theme=dark] .pf-hero,:root[data-theme=dark] .cash-card,:root[data-theme=dark] .pv-card,:root[data-theme=dark] .sr-item,:root[data-theme=dark] .th-row,:root[data-theme=dark] .account-card,:root[data-theme=dark] .analytics-hero,:root[data-theme=dark] .cat-row{background:linear-gradient(145deg,rgba(18,24,20,.76),rgba(8,11,9,.58))!important;border-color:rgba(176,188,174,.106)!important;box-shadow:0 18px 48px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.043)!important}
+.pf-hero{margin-top:20px}
+.analytics-hero{margin-top:4px}
+.cash-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.cash-btn.ghost{border-color:rgba(83,108,89,.24);background:rgba(255,255,255,.18)}
+:root[data-theme=dark] .cash-btn.ghost{background:rgba(255,255,255,.04);border-color:rgba(176,188,174,.16)}
 .ts-warn{color:var(--red)}
 #quick-categories .quick-chip.active{background:linear-gradient(145deg,#2b3a30,#1c241f)!important;color:#f3f5f1!important;border-color:transparent!important;box-shadow:0 8px 20px rgba(28,36,31,.22)!important}
 :root[data-theme=dark] #quick-categories .quick-chip.active{background:linear-gradient(145deg,#d9e2d6,#b8c6b5)!important;color:#121614!important}
@@ -1636,7 +1645,7 @@ body.keyboard-open .bottom-nav{transition:none!important}
           <div><span data-i18n="allocatedCapital">Allocated from budget</span><b id="cash-capital">—</b></div>
           <div><span data-i18n="committedCapital">Already invested</span><b id="cash-committed">—</b></div>
         </div>
-        <div class="cash-actions"><button type="button" class="cash-btn" id="cash-add"><span>＋</span><b data-i18n="cashAdd">Add from budget</b></button><button type="button" class="cash-btn ghost" id="cash-return"><span>↩</span><b data-i18n="cashReturn">Back to budget</b></button></div>
+        <div class="cash-actions"><button type="button" class="cash-btn" id="cash-add"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><b data-i18n="cashAdd">Add from budget</b></button><button type="button" class="cash-btn ghost" id="cash-return"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><b data-i18n="cashReturn">Back to budget</b></button></div>
       </article>
 
       <div class="section-head"><h2 data-i18n="myAssets">My assets</h2><button class="link-button" id="trade-new" type="button" data-i18n="addTrade">Add trade</button></div>
