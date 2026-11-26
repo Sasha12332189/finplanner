@@ -39,6 +39,14 @@ class Settings(BaseSettings):
     debug: bool = False
     dev_telegram_user_id: int | None = None
     webapp_auth_max_age_seconds: int = 86_400
+    # Comma-separated Telegram user ids that always get Premium (the owner, testers).
+    admin_telegram_ids: str = ""
+    # Shown by /paysupport, e.g. "@my_username". Telegram requires bots that sell to offer payment support.
+    support_contact: str = ""
+
+    @property
+    def admin_ids(self) -> set[int]:
+        return {int(x) for x in self.admin_telegram_ids.replace(" ", "").split(",") if x.strip().lstrip("-").isdigit()}
 
 
 @lru_cache

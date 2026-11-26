@@ -50,6 +50,10 @@ COLUMN_MIGRATIONS = {
         "opening_balance": "NUMERIC(16, 2) DEFAULT 0",
         "investment_capital": "NUMERIC(16, 2) DEFAULT 0",
         "last_summary_month": "VARCHAR(7)",
+        "plan": "VARCHAR(16)",
+        "plan_expires_at": "TIMESTAMP WITH TIME ZONE",
+        "plan_charge_id": "VARCHAR(255)",
+        "plan_canceled": "BOOLEAN DEFAULT FALSE",
     },
     "investment_transactions": {
         "account_amount": "NUMERIC(20, 8)",

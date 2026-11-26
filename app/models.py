@@ -28,6 +28,27 @@ class User(Base):
     investment_capital: Mapped[Decimal] = mapped_column(Numeric(16, 2), default=Decimal("0"))
     # "YYYY-MM" of the last month whose summary the bot has sent.
     last_summary_month: Mapped[str | None] = mapped_column(String(7), nullable=True)
+    # Paid plan: "pro" or "premium" while plan_expires_at is in the future, otherwise free.
+    plan: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    plan_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Telegram Stars subscription charge id, needed to cancel or resume auto-renewal.
+    plan_charge_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    plan_canceled: Mapped[bool | None] = mapped_column(default=False, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Payment(Base):
+    """Every successful Telegram Stars payment, including monthly renewals."""
+    __tablename__ = "payments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    plan: Mapped[str] = mapped_column(String(16))
+    stars: Mapped[int] = mapped_column(Integer)
+    telegram_charge_id: Mapped[str] = mapped_column(String(255), unique=True)
+    is_recurring: Mapped[bool] = mapped_column(default=False)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    refunded: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 

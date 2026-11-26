@@ -1560,6 +1560,42 @@ body.keyboard-open .bottom-nav{transition:none!important}
 .ts-main small{display:block;font-size:11px;color:var(--muted);font-weight:650}
 .ts-note,.ts-warn{margin:0;font-size:11px;font-weight:700;color:var(--muted)}
 
+/* v26: subscription */
+.plan-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:16px 0 4px;padding:15px 16px;border-radius:22px;color:var(--ink);background:linear-gradient(145deg,rgba(225,235,226,.82),rgba(195,211,198,.68));border:1px solid rgba(83,108,89,.2);box-shadow:0 18px 46px rgba(63,89,72,.12),inset 0 1px 0 rgba(255,255,255,.58)}
+:root[data-theme=dark] .plan-card{background:linear-gradient(145deg,rgba(18,24,20,.76),rgba(8,11,9,.58));border-color:rgba(176,188,174,.106);box-shadow:0 18px 48px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.043)}
+.plan-card.paid{border-color:rgba(201,166,107,.55)}
+.plan-icon{flex:0 0 44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#d9b877,#b38a43);color:#fff8ea}
+.plan-icon svg,.pc-badge svg{width:22px;height:22px;fill:currentColor}
+.plan-copy{flex:1 1 auto;min-width:0;display:grid;gap:3px}
+.plan-copy strong{font-size:15px}
+.plan-copy span{font-size:11px;color:var(--muted);line-height:1.35}
+.plan-cta{flex:0 0 auto;font-size:12px;font-weight:850;padding:9px 13px;border-radius:999px;background:#1c241f;color:#f3f5f1;white-space:nowrap}
+:root[data-theme=dark] .plan-cta{background:#d9e2d6;color:#121614}
+.premium-reason{margin:12px 0 0;padding:12px 14px;border-radius:16px;background:rgba(201,166,107,.16);color:#7d5f2a;font-size:12px;font-weight:750}
+:root[data-theme=dark] .premium-reason{color:#e2c48d}
+.premium-reason[hidden]{display:none}
+.plan-list{display:grid;gap:12px;margin-top:14px}
+.pc{position:relative;display:grid;gap:10px;padding:16px;border-radius:22px;background:linear-gradient(145deg,rgba(225,235,226,.82),rgba(195,211,198,.68));border:1px solid rgba(83,108,89,.2)}
+:root[data-theme=dark] .pc{background:linear-gradient(145deg,rgba(18,24,20,.76),rgba(8,11,9,.58));border-color:rgba(176,188,174,.106)}
+.pc.featured{border:1.5px solid rgba(201,166,107,.7);box-shadow:0 16px 36px rgba(179,138,67,.16)}
+.pc.current{border:1.5px solid var(--green2)}
+.pc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pc-head strong{font-size:18px;letter-spacing:-.02em}
+.pc-tag{font-size:10px;font-weight:850;padding:4px 9px;border-radius:999px;background:rgba(201,166,107,.22);color:#8a6a30;white-space:nowrap}
+:root[data-theme=dark] .pc-tag{color:#e2c48d}
+.pc-tag.on{background:rgba(83,108,89,.18);color:var(--green2)}
+.pc-price{display:flex;align-items:baseline;gap:6px}
+.pc-price b{font-size:26px;letter-spacing:-.03em}
+.pc-price span{font-size:12px;color:var(--muted);font-weight:700}
+.pc ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.pc li{display:flex;gap:8px;font-size:12.5px;line-height:1.35}
+.pc li::before{content:"✓";flex:0 0 auto;font-weight:900;color:var(--green2)}
+.pc-note{margin:0;font-size:11px;color:var(--muted);font-weight:650}
+.pc .main-action,.pc .secondary-action{margin:2px 0 0!important;width:100%}
+.pc .main-action[disabled]{opacity:.5}
+.premium-free{margin:14px 2px 0;font-size:11px;color:var(--muted);line-height:1.5}
+#premium-terms{margin-top:8px}
+
 /* Same surface as the app's standard cards (.metric / .searchbox), measured in both themes. */
 .pf-hero,.cash-card,.pv-card,.sr-item,.th-row,.account-card,.analytics-hero,.cat-row{background:linear-gradient(145deg,rgba(225,235,226,.82),rgba(195,211,198,.68))!important;border:1px solid rgba(83,108,89,.2)!important;box-shadow:0 18px 46px rgba(63,89,72,.12),inset 0 1px 0 rgba(255,255,255,.58)!important;backdrop-filter:blur(28px) saturate(145%)!important;-webkit-backdrop-filter:blur(28px) saturate(145%)!important}
 :root[data-theme=dark] .pf-hero,:root[data-theme=dark] .cash-card,:root[data-theme=dark] .pv-card,:root[data-theme=dark] .sr-item,:root[data-theme=dark] .th-row,:root[data-theme=dark] .account-card,:root[data-theme=dark] .analytics-hero,:root[data-theme=dark] .cat-row{background:linear-gradient(145deg,rgba(18,24,20,.76),rgba(8,11,9,.58))!important;border-color:rgba(176,188,174,.106)!important;box-shadow:0 18px 48px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.043)!important}
@@ -1683,6 +1719,7 @@ body.keyboard-open .bottom-nav{transition:none!important}
       <p class="eyebrow" data-i18n="settings">SETTINGS</p>
       <h1 data-i18n="settingsTitle">Settings</h1>
       <p class="subtle" data-i18n="settingsSubtitle">Make FinPlan fit the way you use it.</p>
+      <button type="button" class="plan-card" id="plan-card"><span class="plan-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg></span><span class="plan-copy"><strong id="plan-name">finplan</strong><span id="plan-sub"></span></span><span class="plan-cta" id="plan-cta"></span></button>
       <form id="settings-form" class="settings-page-form">
         <div class="profile-card profile-card-large"><div class="profile-avatar" id="profile-avatar">F</div><div><strong id="profile-name">finplan</strong><span id="profile-username">Telegram account</span></div></div>
         <input type="hidden" name="language" id="settings-language" value="uk">
@@ -1777,6 +1814,14 @@ body.keyboard-open .bottom-nav{transition:none!important}
 
 
 
+
+<dialog id="premium-dialog"><div class="sheet premium-sheet">
+  <div class="sheet-head"><div><p class="eyebrow">FINPLAN PRO · PREMIUM</p><h2 id="premium-title">—</h2></div><button type="button" class="close" data-close aria-label="Close">×</button></div>
+  <p class="premium-reason" id="premium-reason" hidden></p>
+  <div class="plan-list" id="plan-list"></div>
+  <p class="premium-free" id="premium-free"></p>
+  <p class="field-hint" id="premium-terms"></p>
+</div></dialog>
 
 <dialog id="account-dialog"><form class="sheet" id="account-form">
   <input type="hidden" name="id">
@@ -2259,7 +2304,7 @@ $$('[data-open="goal-dialog"]').forEach(b=>b.addEventListener('click',()=>$('#go
 
 /* ---------- analytics ---------- */
 let anMonth=monthKey(new Date()),anData=null;
-async function loadAnalytics(){try{anData=await api(`/analytics?month=${anMonth}`);renderAnalytics()}catch(e){toast(e.message)}}
+async function loadAnalytics(){try{anData=await api(`/analytics?month=${anMonth}`);renderAnalytics();return true}catch(e){if(!e.premium)toast(e.message);return false}}
 function pctChange(now,prev){now=Number(now);prev=Number(prev);if(!(prev>0))return null;return Math.round((now-prev)/prev*100)}
 function donut(rows,total){
   const C=2*Math.PI*46;let offset=0;
@@ -2296,7 +2341,7 @@ function renderAnalytics(){
   $('#an-income-list').innerHTML=d.income.length?d.income.map(r=>{const delta=pctChange(r.amount,r.prev_amount);const share=Number(d.income_total)>0?Math.round(Number(r.amount)/Number(d.income_total)*100):0;return `<div class="cat-row static"><span class="cat-dot" style="background:var(--green)"></span><span class="cat-main"><span class="cat-top"><strong>${esc(catLabel(r.category))}</strong><b>+${fmt(r.amount,c)}</b></span><span class="cat-sub"><span>${share}%</span>${delta==null?'':`<span class="delta ${delta>=0?'down':'up'}">${delta>0?'▲':delta<0?'▼':''}${Math.abs(delta)}%</span>`}</span></span></div>`}).join(''):`<div class="empty">${t('noIncomeMonth')}</div>`;
   $$('[data-limit-cat]').forEach(b=>b.onclick=()=>openLimit(d.expenses.find(r=>r.category===b.dataset.limitCat)));
 }
-$('#month-prev').onclick=()=>{const [y,m]=anMonth.split('-').map(Number);anMonth=monthKey(new Date(y,m-2,1));loadAnalytics()};
+$('#month-prev').onclick=async()=>{const before=anMonth;const [y,m]=anMonth.split('-').map(Number);anMonth=monthKey(new Date(y,m-2,1));if(!await loadAnalytics())anMonth=before};
 $('#month-next').onclick=()=>{const [y,m]=anMonth.split('-').map(Number);const next=monthKey(new Date(y,m,1));if(next<=monthKey(new Date())){anMonth=next;loadAnalytics()}};
 function openLimit(row){if(!row)return;const f=$('#limit-form');f.category.value=row.category;$('#limit-title').textContent=catLabel(row.category);$('#limit-spent').textContent=tf('spentThisMonth',{x:fmt(row.amount,cur())});f.limit_amount.value=row.limit!=null?Number(row.limit):'';$('#limit-remove').hidden=row.limit==null;f.querySelector('.two-actions').classList.toggle('single',row.limit==null);openDialog('limit-dialog')}
 async function saveLimit(value){const f=$('#limit-form');try{await api(`/budgets/${encodeURIComponent(f.category.value)}`,{method:'PUT',body:JSON.stringify({limit_amount:value})});closeDialogs();toast(t('saved'));await loadAnalytics()}catch(err){toast(err.message)}}
@@ -2580,6 +2625,108 @@ function showErr(msg){const box=$('#investment-error');box.innerHTML=`<strong>${
 const baseApplyLanguage=applyLanguage;
 applyLanguage=function(l){baseApplyLanguage(l);translateTypes();if(inv.portfolio&&$('#invest-view')?.classList.contains('active'))renderInvest()};
 translateTypes();
+})();
+</script>
+<script id="finplan-premium-v26">
+/* v26: finplan Pro / Premium — Telegram Stars subscription, limit upsell. */
+(()=>{
+const L={
+  ru:{planFree:"finplan Free",planPro:"finplan Pro",planPremium:"finplan Premium",planFreeSub:"Бесплатный план. Открой больше возможностей.",planActiveSub:"Активен до {d}",planCanceledSub:"Действует до {d}, без продления",planAdminSub:"Включён навсегда (владелец)",upgrade:"Улучшить",manage:"Управлять",premiumTitle:"Больше возможностей",premiumTitleActive:"Твоя подписка",perMonth:"⭐ / месяц",approxUsd:"≈ ${x}",tagBest:"Всё включено",tagCurrent:"Твой план",buyFor:"Оформить за {s} ⭐",switchFor:"Перейти за {s} ⭐",cancelRenew:"Отменить автопродление",resumeRenew:"Возобновить продление",renewsOn:"Продлится {d}",endsOn:"Закончится {d}, без продления",downgradeNote:"Сначала отмени Premium — он действует до конца оплаченного периода.",proF:["Счета без ограничений","Цели без ограничений","Лимиты по всем категориям","Регулярные платежи без ограничений","Аналитика за любой месяц","Итоги месяца в боте 1-го числа"],premiumF:["Всё из Pro","Любое число активов в портфеле","Избранное без ограничений"],freeLine:"Бесплатно: 1 доп. счёт, {goals} цели, {budgets} лимита, {recurring} регулярных платежа, аналитика за 2 месяца, {positions} актива.",terms:"Оплата через Telegram Stars. Подписка продлевается каждые 30 дней, отменить можно в любой момент — доступ сохранится до конца периода. Подробнее: /terms в боте.",payProcessing:"Оплата прошла, включаю подписку…",payDone:"{p} активен. Спасибо!",payFailed:"Оплата не прошла",payCancelled:"Оплата отменена",payWait:"Платёж получен, подписка включится через минуту.",openInTelegram:"Оплата доступна только внутри Telegram.",renewOff:"Автопродление отключено",renewOn:"Автопродление включено",confirmCancel:"Отключить автопродление? Подписка будет действовать до {d}.",
+    reason:{accounts:"В бесплатной версии — 1 дополнительный счёт.",goals:"В бесплатной версии — до {n} целей.",budgets:"В бесплатной версии — до {n} лимитов по категориям.",recurring:"В бесплатной версии — до {n} регулярных платежей.",months_back:"В бесплатной версии аналитика доступна за текущий и прошлый месяц.",positions:"Можно держать до {n} разных активов. Больше — в Premium.",watchlist:"В избранном можно держать до {n} активов. Больше — в Premium."}},
+  uk:{planFree:"finplan Free",planPro:"finplan Pro",planPremium:"finplan Premium",planFreeSub:"Безкоштовний план. Відкрий більше можливостей.",planActiveSub:"Активний до {d}",planCanceledSub:"Діє до {d}, без продовження",planAdminSub:"Увімкнено назавжди (власник)",upgrade:"Покращити",manage:"Керувати",premiumTitle:"Більше можливостей",premiumTitleActive:"Твоя підписка",perMonth:"⭐ / місяць",approxUsd:"≈ ${x}",tagBest:"Все включено",tagCurrent:"Твій план",buyFor:"Оформити за {s} ⭐",switchFor:"Перейти за {s} ⭐",cancelRenew:"Вимкнути автопродовження",resumeRenew:"Відновити продовження",renewsOn:"Продовжиться {d}",endsOn:"Закінчиться {d}, без продовження",downgradeNote:"Спершу скасуй Premium — він діє до кінця оплаченого періоду.",proF:["Рахунки без обмежень","Цілі без обмежень","Ліміти для всіх категорій","Регулярні платежі без обмежень","Аналітика за будь-який місяць","Підсумки місяця в боті 1-го числа"],premiumF:["Все з Pro","Будь-яка кількість активів у портфелі","Обране без обмежень"],freeLine:"Безкоштовно: 1 дод. рахунок, {goals} цілі, {budgets} ліміти, {recurring} регулярні платежі, аналітика за 2 місяці, {positions} активи.",terms:"Оплата через Telegram Stars. Підписка продовжується кожні 30 днів, скасувати можна будь-коли — доступ збережеться до кінця періоду. Детальніше: /terms у боті.",payProcessing:"Оплата пройшла, вмикаю підписку…",payDone:"{p} активний. Дякуємо!",payFailed:"Оплата не пройшла",payCancelled:"Оплату скасовано",payWait:"Платіж отримано, підписка увімкнеться за хвилину.",openInTelegram:"Оплата доступна тільки в Telegram.",renewOff:"Автопродовження вимкнено",renewOn:"Автопродовження увімкнено",confirmCancel:"Вимкнути автопродовження? Підписка діятиме до {d}.",
+    reason:{accounts:"У безкоштовній версії — 1 додатковий рахунок.",goals:"У безкоштовній версії — до {n} цілей.",budgets:"У безкоштовній версії — до {n} лімітів за категоріями.",recurring:"У безкоштовній версії — до {n} регулярних платежів.",months_back:"У безкоштовній версії аналітика доступна за поточний і минулий місяць.",positions:"Можна тримати до {n} різних активів. Більше — у Premium.",watchlist:"В обраному можна тримати до {n} активів. Більше — у Premium."}},
+  en:{planFree:"finplan Free",planPro:"finplan Pro",planPremium:"finplan Premium",planFreeSub:"Free plan. Unlock more.",planActiveSub:"Active until {d}",planCanceledSub:"Active until {d}, won't renew",planAdminSub:"Always on (owner)",upgrade:"Upgrade",manage:"Manage",premiumTitle:"Get more out of finplan",premiumTitleActive:"Your subscription",perMonth:"⭐ / month",approxUsd:"≈ ${x}",tagBest:"Everything",tagCurrent:"Your plan",buyFor:"Get it for {s} ⭐",switchFor:"Switch for {s} ⭐",cancelRenew:"Turn off auto-renewal",resumeRenew:"Turn renewal back on",renewsOn:"Renews {d}",endsOn:"Ends {d}, won't renew",downgradeNote:"Cancel Premium first — it stays active until the paid period ends.",proF:["Unlimited accounts","Unlimited goals","Limits for every category","Unlimited recurring payments","Analytics for any month","Monthly summary in the bot"],premiumF:["Everything in Pro","Any number of assets in your portfolio","Unlimited watchlist"],freeLine:"Free: 1 extra account, {goals} goals, {budgets} limits, {recurring} recurring payments, 2 months of analytics, {positions} assets.",terms:"Paid with Telegram Stars. Renews every 30 days; cancel any time and keep access until the period ends. See /terms in the bot.",payProcessing:"Payment received, turning your plan on…",payDone:"{p} is active. Thank you!",payFailed:"Payment failed",payCancelled:"Payment cancelled",payWait:"Payment received; your plan will turn on within a minute.",openInTelegram:"Payments work only inside Telegram.",renewOff:"Auto-renewal turned off",renewOn:"Auto-renewal turned on",confirmCancel:"Turn off auto-renewal? Your plan stays active until {d}.",
+    reason:{accounts:"The free plan includes 1 extra account.",goals:"The free plan includes up to {n} goals.",budgets:"The free plan includes up to {n} category limits.",recurring:"The free plan includes up to {n} recurring payments.",months_back:"On the free plan analytics covers this month and last month.",positions:"You can hold up to {n} different assets. Premium has no limit.",watchlist:"Your watchlist holds up to {n} assets. Premium has no limit."}}
+};
+const lang=()=>state.me?.language||localStorage.getItem('finplan_lang')||'uk';
+const W=()=>L[lang()]||L.uk;
+const tw=(k,v={})=>String(W()[k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??'');
+const locale=()=>({en:'en-GB',ru:'ru-RU'}[lang()]||'uk-UA');
+const day=v=>v?new Date(v).toLocaleDateString(locale(),{day:'numeric',month:'long',year:'numeric'}):'';
+const NAME={free:'planFree',pro:'planPro',premium:'planPremium'};
+const CROWN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>';
+let sub=null,reason=null;
+
+/* Turn HTTP 402 premium_required into the upsell sheet. Everything else behaves as before. */
+api=async function(path,options={}){
+  const headers={"Content-Type":"application/json",...(options.headers||{})};
+  const initData=tg?.initData||"";if(initData)headers["X-Telegram-Init-Data"]=initData;
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);
+  try{
+    const r=await fetch(`/api${path}`,{...options,headers,signal:controller.signal});
+    const data=await r.json().catch(()=>({}));
+    if(r.status===402&&data.detail?.code==='premium_required'){
+      const d=data.detail;const msg=W().reason[d.feature]?String(W().reason[d.feature]).replace('{n}',d.limit??''):tw('premiumTitle');
+      openPremium(d);const err=new Error(msg);err.premium=true;throw err;
+    }
+    if(!r.ok){const det=data.detail;throw new Error(typeof det==='string'?det:(det?.message||`HTTP ${r.status}`))}
+    return data;
+  }catch(e){if(e.name==="AbortError")throw new Error("Server timeout");throw e}finally{clearTimeout(timer)}
+};
+
+async function loadSub(){try{sub=await api('/subscription');renderPlanCard();if($('#premium-dialog').open)renderPremium()}catch(e){}}
+function renderPlanCard(){
+  if(!sub)return;const p=sub.plan;const card=$('#plan-card');card.classList.toggle('paid',p!=='free');
+  $('#plan-name').textContent=tw(NAME[p]);
+  $('#plan-sub').textContent=sub.is_admin?tw('planAdminSub'):p==='free'?tw('planFreeSub'):tw(sub.auto_renew?'planActiveSub':'planCanceledSub',{d:day(sub.expires_at)});
+  $('#plan-cta').textContent=tw(p==='free'?'upgrade':'manage');
+}
+function openPremium(detail){reason=detail||null;renderPremium();if(!$('#premium-dialog').open){$$('dialog[open]').forEach(d=>d.close());openDialog('premium-dialog')}if(!sub)loadSub()}
+window.openPremium=openPremium;
+function renderPremium(){
+  const cur=sub?.plan||'free',admin=!!sub?.is_admin;
+  $('#premium-title').textContent=tw(cur==='free'?'premiumTitle':'premiumTitleActive');
+  const r=$('#premium-reason');
+  if(reason&&W().reason[reason.feature]){r.textContent=String(W().reason[reason.feature]).replace('{n}',reason.limit??'');r.hidden=false}else r.hidden=true;
+  const plans=sub?.plans||[{id:'pro',stars:250,usd:5},{id:'premium',stars:350,usd:7}];
+  $('#plan-list').innerHTML=plans.map(p=>{
+    const isCur=cur===p.id,feats=W()[p.id==='pro'?'proF':'premiumF'];
+    let action='',note='';
+    if(isCur){
+      if(admin){note=tw('planAdminSub')}
+      else if(sub.auto_renew){note=tw('renewsOn',{d:day(sub.expires_at)});action=`<button type="button" class="secondary-action" data-renew="off">${tw('cancelRenew')}</button>`}
+      else{note=tw('endsOn',{d:day(sub.expires_at)});if(sub.can_manage)action=`<button type="button" class="secondary-action" data-renew="on">${tw('resumeRenew')}</button>`}
+    }else if(admin){action=''}
+    else if(cur==='premium'&&p.id==='pro'&&sub.auto_renew){note=tw('downgradeNote')}
+    else{action=`<button type="button" class="main-action" data-buy="${p.id}">${tw(cur==='free'?'buyFor':'switchFor',{s:p.stars})}</button>`}
+    const tag=isCur?`<span class="pc-tag on">${tw('tagCurrent')}</span>`:p.id==='premium'?`<span class="pc-tag">${tw('tagBest')}</span>`:'';
+    return `<article class="pc${p.id==='premium'?' featured':''}${isCur?' current':''}"><div class="pc-head"><strong>${tw(NAME[p.id])}</strong>${tag}</div><div class="pc-price"><b>${p.stars}</b><span>${tw('perMonth')} · ${tw('approxUsd',{x:p.usd})}</span></div><ul>${feats.map(f=>`<li>${esc(f)}</li>`).join('')}</ul>${note?`<p class="pc-note">${esc(note)}</p>`:''}${action}</article>`;
+  }).join('');
+  const fl=sub?.free_limits||{goals:3,budgets:2,recurring:3,positions:3};
+  $('#premium-free').textContent=cur==='free'?tw('freeLine',fl):'';
+  $('#premium-terms').textContent=tw('terms');
+  $$('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy,b));
+  $$('[data-renew]').forEach(b=>b.onclick=()=>setRenew(b.dataset.renew==='on',b));
+}
+async function buy(plan,button){
+  button.disabled=true;
+  try{
+    const r=await api('/subscription/invoice',{method:'POST',body:JSON.stringify({plan})});
+    if(!tg?.openInvoice||!tg.initData){if(tg?.openTelegramLink){tg.openTelegramLink(r.url)}else{toast(tw('openInTelegram'));window.open(r.url,'_blank')}return}
+    tg.openInvoice(r.url,async status=>{
+      if(status==='paid'){toast(tw('payProcessing'));await waitForPlan(plan)}
+      else if(status==='failed')toast(tw('payFailed'));
+      else if(status==='cancelled')toast(tw('payCancelled'));
+    });
+  }catch(e){if(!e.premium)toast(e.message)}finally{button.disabled=false}
+}
+async function waitForPlan(plan){
+  // The bot activates the plan when Telegram delivers successful_payment (usually 1–3 s).
+  for(let i=0;i<20;i++){await new Promise(r=>setTimeout(r,1500));await loadSub();if(sub?.plan===plan){toast(tw('payDone',{p:tw(NAME[plan])}));reason=null;renderPremium();return}}
+  toast(tw('payWait'));
+}
+async function setRenew(on,button){
+  if(!on&&!confirm(tw('confirmCancel',{d:day(sub?.expires_at)})))return;
+  button.disabled=true;
+  try{sub=await api(`/subscription/${on?'resume':'cancel'}`,{method:'POST'});toast(tw(on?'renewOn':'renewOff'));renderPlanCard();renderPremium()}
+  catch(e){toast(e.message)}finally{button.disabled=false}
+}
+$('#plan-card').onclick=()=>openPremium(null);
+
+const baseLoadHome=loadHome;
+loadHome=async function(){await baseLoadHome();loadSub()};
+const baseApplyLanguage=applyLanguage;
+applyLanguage=function(l){baseApplyLanguage(l);renderPlanCard();if($('#premium-dialog').open)renderPremium()};
 })();
 </script>
 </body>

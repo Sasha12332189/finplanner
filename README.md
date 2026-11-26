@@ -23,6 +23,30 @@ The server also runs a background job every 30 minutes: it records due recurring
 
 Railway starts the service with `start_railway.py`, which runs Uvicorn on Railway's `PORT`.
 
+## Subscription: finplan Pro / Premium (Telegram Stars)
+
+| | Free | Pro — 250 ⭐ / 30 days (≈ $5) | Premium — 350 ⭐ / 30 days (≈ $7) |
+|---|---|---|---|
+| Extra accounts | 1 | unlimited | unlimited |
+| Goals | 3 | unlimited | unlimited |
+| Category limits | 2 | unlimited | unlimited |
+| Recurring payments | 3 | unlimited | unlimited |
+| Analytics | this + last month | any month | any month |
+| Monthly summary in the bot | — | ✓ | ✓ |
+| Different assets in the portfolio | 3 | 3 | unlimited |
+| Watchlist | 3 | 3 | unlimited |
+
+Limits only block adding new items; nothing is deleted when a plan ends. Plans and limits live in `app/subscriptions.py`.
+
+How payment works: the Mini App calls `POST /api/subscription/invoice`, the server creates a Stars invoice link with a 30-day `subscription_period`, and the app opens it with `Telegram.WebApp.openInvoice`. The bot approves the `pre_checkout_query`, and on `successful_payment` (also sent for every monthly renewal) it activates or extends the plan and records it in the `payments` table. Users can turn auto-renewal off in Settings (or in Telegram → Settings → My Stars); the plan stays active until the paid period ends. Switching Pro → Premium cancels the old subscription's renewal. The bot also answers `/premium`, `/terms` and `/paysupport`.
+
+No payment provider setup is needed for Stars. Optional variables:
+
+- `SUPPORT_CONTACT` — who to contact about payments, shown by `/paysupport` (for example `@your_username`). Telegram requires bots that sell to offer payment support.
+- `ADMIN_TELEGRAM_IDS` — comma-separated Telegram user ids that always get Premium (you, testers).
+
+To refund someone, use the Bot API `refundStarPayment` with their user id and the `telegram_charge_id` from the `payments` table.
+
 **Never commit `.env` or a real bot token to GitHub.**
 
 ## Local Windows

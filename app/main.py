@@ -54,6 +54,9 @@ from .schemas import (
     WatchlistCreate,
 )
 from .services import monthly_totals
+from . import subscriptions as subs
+from .finance import local_today
+from pydantic import BaseModel
 
 ROOT = Path(__file__).resolve().parent.parent
 STATIC = ROOT / "static"
@@ -141,7 +144,8 @@ async def run_background_once(now: datetime | None = None) -> None:
                 continue
             if user.last_summary_month >= prev_key or local_now.hour < SUMMARY_HOUR and today.day == 1:
                 continue
-            text = await month_summary_text(session, user, prev_year, prev_month)
+            # The monthly summary is a Pro / Premium feature.
+            text = await month_summary_text(session, user, prev_year, prev_month) if subs.limits_for(user)["summary"] else None
             if text and telegram_bot is not None:
                 try:
                     await telegram_bot.send_message(user.telegram_id, text)
@@ -350,6 +354,7 @@ async def create_account(payload: AccountCreate, user: User = Depends(owned_user
     count = len((await session.scalars(select(Account.id).where(Account.user_id == user.id))).all())
     if count >= 10:
         raise HTTPException(status_code=400, detail="Too many accounts")
+    await subs.check_limit(session, user, "accounts", Account)
     account = Account(user_id=user.id, name=payload.name.strip(), opening_balance=payload.opening_balance)
     session.add(account)
     await session.commit()
@@ -403,6 +408,12 @@ async def transfer_between_accounts(payload: TransferCreate, user: User = Depend
 async def analytics_view(month: str | None = None, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
     if month is not None and not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", month):
         raise HTTPException(status_code=400, detail="month must look like 2026-11")
+    months_back = subs.limits_for(user)["months_back"]
+    if month is not None and months_back is not None:
+        today = local_today()
+        year, mon = (int(x) for x in month.split("-"))
+        if (today.year * 12 + today.month) - (year * 12 + mon) > months_back:
+            raise subs.premium_required(user, "months_back", months_back)
     return await analytics(session, user, month)
 
 
@@ -416,6 +427,7 @@ async def set_category_budget(category: str, payload: CategoryBudgetSet, user: U
     elif budget:
         budget.limit_amount = payload.limit_amount
     else:
+        await subs.check_limit(session, user, "budgets", CategoryBudget)
         session.add(CategoryBudget(user_id=user.id, category=category, limit_amount=payload.limit_amount))
     await session.commit()
     return {"ok": True}
@@ -435,6 +447,7 @@ async def recurring(user: User = Depends(owned_user), session: AsyncSession = De
 
 @app.post("/api/recurring", status_code=201)
 async def create_recurring(payload: RecurringCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    await subs.check_limit(session, user, "recurring", RecurringPayment)
     account_id = await checked_account(session, user, payload.account_id)
     item = RecurringPayment(
         user_id=user.id, kind=payload.kind, amount=payload.amount, category=payload.category,
@@ -476,6 +489,7 @@ async def goals(user: User = Depends(owned_user), session: AsyncSession = Depend
 
 @app.post("/api/goals", status_code=201)
 async def create_goal(payload: GoalCreate, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    await subs.check_limit(session, user, "goals", Goal)
     goal = Goal(user_id=user.id, **payload.model_dump())
     session.add(goal)
     await session.commit()
@@ -578,6 +592,7 @@ async def add_watchlist(payload: WatchlistCreate, user: User = Depends(owned_use
     exists = await session.scalar(select(WatchlistItem).where(WatchlistItem.user_id == user.id, WatchlistItem.symbol == symbol))
     if exists:
         return {"id": exists.id, "already_saved": True}
+    await subs.check_limit(session, user, "watchlist", WatchlistItem)
     item = WatchlistItem(user_id=user.id, symbol=symbol, instrument_name=payload.instrument_name, asset_type=payload.asset_type)
     session.add(item)
     await session.commit()
@@ -721,10 +736,16 @@ async def create_investment_transaction(payload: InvestmentTransactionCreate, us
     # Replay the whole ledger with the new trade, so a back-dated sale cannot sell
     # shares that were bought later, and income needs a known asset.
     try:
+        before = build_positions(trades)
         build_positions(trades + [trade])
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
     if payload.side == "BUY":
+        # Free and Pro hold up to N different assets; adding to one you own is always fine.
+        limit = subs.limits_for(user)["positions"]
+        held = {(p.symbol, p.currency) for p in before if p.quantity > 0}
+        if limit is not None and (trade.symbol, trade_currency) not in held and len(held) >= limit:
+            raise subs.premium_required(user, "positions", limit)
         capital = Decimal(user.investment_capital or 0)
         available = max(Decimal("0"), capital - await investment_cash_flow(session, user, trades))
         if account_amount > available:
@@ -936,6 +957,75 @@ async def portfolio(user: User = Depends(owned_user), session: AsyncSession = De
         "conversion_rates": conversion,
         "missing_rates": sorted(missing_rates),
     }
+
+
+# ---------- subscription (Telegram Stars) ----------
+
+class InvoiceRequest(BaseModel):
+    plan: str
+
+
+@app.get("/api/subscription")
+async def subscription_status(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    return await subs.status(session, user)
+
+
+@app.post("/api/subscription/invoice")
+async def subscription_invoice(payload: InvoiceRequest, user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    """Create a Telegram Stars subscription invoice link; the Mini App opens it with openInvoice."""
+    plan = payload.plan.lower()
+    if plan not in subs.PLANS:
+        raise HTTPException(status_code=400, detail="Unknown plan")
+    current = subs.effective_plan(user)
+    if current == plan and user.plan_charge_id and not user.plan_canceled:
+        raise HTTPException(status_code=400, detail="This plan is already active")
+    if current != "free" and subs.PLANS[plan]["rank"] < subs.PLANS[current]["rank"] and not user.plan_canceled:
+        raise HTTPException(status_code=400, detail="Cancel the current plan first; it stays active until the paid period ends")
+    if telegram_bot is None:
+        raise HTTPException(status_code=503, detail="Payments are not available: the Telegram bot is not configured")
+    title, description = subs.TITLES[plan]
+    from aiogram.types import LabeledPrice
+    try:
+        url = await telegram_bot.create_invoice_link(
+            title=title,
+            description=description,
+            payload=f"sub:{plan}:{user.telegram_id}",
+            currency="XTR",
+            prices=[LabeledPrice(label=title, amount=subs.PLANS[plan]["stars"])],
+            subscription_period=subs.SUBSCRIPTION_PERIOD,
+        )
+    except Exception as error:
+        logging.exception("Failed to create a Stars invoice")
+        raise HTTPException(status_code=503, detail="Telegram did not create the invoice. Try again in a moment.") from error
+    return {"url": url, "plan": plan, "stars": subs.PLANS[plan]["stars"]}
+
+
+async def _set_auto_renew(user: User, session: AsyncSession, canceled: bool) -> dict:
+    if not user.plan_charge_id or subs.effective_plan(user) == "free":
+        raise HTTPException(status_code=400, detail="No active subscription")
+    if telegram_bot is None:
+        raise HTTPException(status_code=503, detail="The Telegram bot is not configured")
+    try:
+        await telegram_bot.edit_user_star_subscription(
+            user_id=user.telegram_id, telegram_payment_charge_id=user.plan_charge_id, is_canceled=canceled,
+        )
+    except Exception as error:
+        logging.exception("editUserStarSubscription failed")
+        raise HTTPException(status_code=503, detail="Telegram could not change the subscription. Try again later.") from error
+    user.plan_canceled = canceled
+    await session.commit()
+    return await subs.status(session, user)
+
+
+@app.post("/api/subscription/cancel")
+async def subscription_cancel(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    """Stop auto-renewal; the plan stays active until the paid period ends."""
+    return await _set_auto_renew(user, session, True)
+
+
+@app.post("/api/subscription/resume")
+async def subscription_resume(user: User = Depends(owned_user), session: AsyncSession = Depends(db_session)) -> dict:
+    return await _set_auto_renew(user, session, False)
 
 
 # Must stay the last route. Old Menu-button / BotFather links may point at paths such as

@@ -14,13 +14,17 @@ from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    LabeledPrice,
     MenuButtonWebApp,
     Message,
+    PreCheckoutQuery,
     WebAppInfo,
 )
 from sqlalchemy import select
 
+from . import subscriptions as subs
 from .config import get_settings
+from .finance import LOCAL_TZ
 from .database import SessionLocal, init_database
 from .finance import apply_due_recurring, category_name, local_today, month_summary_text, total_balance
 from .models import Goal, InvestmentPositionState, InvestmentTransaction, Transaction, User
@@ -85,6 +89,9 @@ async def configure_commands(bot: Bot) -> None:
         BotCommand(command="summary", description="Monthly summary"),
         BotCommand(command="goal", description="Create a savings goal"),
         BotCommand(command="portfolio", description="View portfolio"),
+        BotCommand(command="premium", description="finplan Pro / Premium"),
+        BotCommand(command="paysupport", description="Help with payments"),
+        BotCommand(command="terms", description="Subscription terms"),
     ])
 
     # Keep Telegram's blue Menu button synchronized with the current Railway URL.
@@ -181,11 +188,141 @@ async def goal(message: Message) -> None:
         user = await ensure_user(
             session, message.from_user.id, message.from_user.first_name, message.from_user.username
         )
+        limit = subs.limits_for(user)["goals"]
+        if limit is not None and await subs.count(session, Goal, user.id) >= limit:
+            await session.commit()
+            await message.answer(
+                f"В бесплатной версии можно до {limit} целей. Больше — в finplan Pro: /premium"
+            )
+            return
         session.add(Goal(user_id=user.id, title=title, target_amount=amount))
         await session.commit()
         currency = user.currency
 
-    await message.answer(f"Цель «{title}» на {money(amount, currency)} создана.")
+    await message.answer(f"Цель «{html.escape(title)}» на {money(amount, currency)} создана.")
+
+
+# ---------- finplan Pro / Premium (Telegram Stars) ----------
+
+PLAN_NAMES = {"pro": "finplan Pro", "premium": "finplan Premium"}
+
+
+async def premium_keyboard(bot: Bot, telegram_id: int) -> InlineKeyboardMarkup:
+    rows = []
+    for plan, info in subs.PLANS.items():
+        title, description = subs.TITLES[plan]
+        link = await bot.create_invoice_link(
+            title=title, description=description, payload=f"sub:{plan}:{telegram_id}", currency="XTR",
+            prices=[LabeledPrice(label=title, amount=info["stars"])], subscription_period=subs.SUBSCRIPTION_PERIOD,
+        )
+        rows.append([InlineKeyboardButton(text=f"{title} — {info['stars']} ⭐ / месяц", url=link)])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+@router.message(Command("premium"))
+async def premium(message: Message) -> None:
+    async with SessionLocal() as session:
+        user = await ensure_user(session, message.from_user.id, message.from_user.first_name, message.from_user.username)
+        await session.commit()
+        plan = subs.effective_plan(user)
+        expires = subs.as_utc(user.plan_expires_at)
+    if plan != "free":
+        until = f" до {expires.astimezone(LOCAL_TZ):%d.%m.%Y}" if expires else ""
+        await message.answer(
+            f"У тебя активен <b>{PLAN_NAMES[plan]}</b>{until}.\n"
+            "Управлять подпиской можно в Mini App → Настройки или в Telegram: Настройки → Мои звёзды."
+        )
+        return
+    text = (
+        "<b>finplan Pro</b> — 250 ⭐ в месяц (≈ $5)\n"
+        "Счета, цели, лимиты и регулярные платежи без ограничений, вся история аналитики, итоги месяца в боте.\n\n"
+        "<b>finplan Premium</b> — 350 ⭐ в месяц (≈ $7)\n"
+        "Всё из Pro и инвестиции без ограничений: любое число активов и избранное.\n\n"
+        "Подписка продлевается каждые 30 дней, отменить можно в любой момент."
+    )
+    try:
+        keyboard = await premium_keyboard(message.bot, message.from_user.id)
+    except Exception:
+        logging.exception("Failed to create invoice links")
+        await message.answer(text + "\n\nОплата сейчас недоступна, попробуй позже.")
+        return
+    await message.answer(text, reply_markup=keyboard)
+
+
+@router.pre_checkout_query()
+async def pre_checkout(query: PreCheckoutQuery) -> None:
+    """Telegram asks to confirm within 10 seconds before charging Stars."""
+    parsed = subs.parse_payload(query.invoice_payload)
+    if (
+        parsed is None
+        or query.currency != "XTR"
+        or parsed[1] != query.from_user.id
+        or query.total_amount != subs.PLANS[parsed[0]]["stars"]
+    ):
+        await query.answer(ok=False, error_message="Этот счёт устарел. Открой оплату заново в finplan.")
+        return
+    await query.answer(ok=True)
+
+
+@router.message(F.successful_payment)
+async def successful_payment(message: Message) -> None:
+    payment = message.successful_payment
+    parsed = subs.parse_payload(payment.invoice_payload)
+    if parsed is None or payment.currency != "XTR":
+        logging.warning("Unexpected payment payload %r", payment.invoice_payload)
+        return
+    plan = parsed[0]
+    async with SessionLocal() as session:
+        user = await ensure_user(session, message.from_user.id, message.from_user.first_name, message.from_user.username)
+        is_new, previous_charge = await subs.record_payment(
+            session, user, plan, payment.total_amount, payment.telegram_payment_charge_id,
+            payment.subscription_expiration_date, bool(payment.is_recurring and not payment.is_first_recurring),
+        )
+        await session.commit()
+        expires = subs.as_utc(user.plan_expires_at)
+    if previous_charge:
+        # Switched between Pro and Premium: stop the old subscription from renewing.
+        try:
+            await message.bot.edit_user_star_subscription(
+                user_id=message.from_user.id, telegram_payment_charge_id=previous_charge, is_canceled=True,
+            )
+        except Exception:
+            logging.exception("Failed to cancel the previous subscription")
+    if not is_new:
+        return
+    until = f"{expires.astimezone(LOCAL_TZ):%d.%m.%Y}" if expires else ""
+    if payment.is_recurring and not payment.is_first_recurring:
+        await message.answer(f"{PLAN_NAMES[plan]} продлён до {until}. Спасибо!")
+    else:
+        await message.answer(
+            f"Готово! <b>{PLAN_NAMES[plan]}</b> активен до {until}.\n"
+            "Подписка продлится автоматически через 30 дней. Отменить можно в Mini App → Настройки."
+        )
+
+
+@router.message(Command("paysupport"))
+async def paysupport(message: Message) -> None:
+    contact = get_settings().support_contact.strip()
+    where = f"Напиши {html.escape(contact)}" if contact else "Свяжись с владельцем бота (контакт в описании бота)"
+    await message.answer(
+        "<b>Помощь с оплатой</b>\n"
+        f"{where} — укажи дату платежа и что пошло не так. Если подписка не включилась "
+        "после оплаты, мы проверим платёж и включим её или вернём звёзды."
+    )
+
+
+@router.message(Command("terms"))
+async def terms(message: Message) -> None:
+    await message.answer(
+        "<b>Условия подписки finplan</b>\n"
+        "• Pro — 250 ⭐, Premium — 350 ⭐ за 30 дней. Оплата через Telegram Stars.\n"
+        "• Подписка продлевается автоматически каждые 30 дней, пока ты её не отменишь.\n"
+        "• После отмены доступ сохраняется до конца оплаченного периода.\n"
+        "• Твои данные не удаляются: если подписка закончится, записи останутся, "
+        "просто нельзя будет добавлять новые сверх бесплатных лимитов.\n"
+        "• finplan — инструмент учёта, а не финансовый или инвестиционный совет.\n"
+        "Вопросы по оплате: /paysupport"
+    )
 
 
 @router.message(Command("portfolio"))
